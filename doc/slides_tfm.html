@@ -8,6 +8,8 @@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@4.6.1/dist/reveal.css">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@4.6.1/dist/theme/white.css">
 <style>
+  *, *::before, *::after { box-sizing: border-box; }
+  .reveal .slides section { padding: 0 6px; }
   :root {
     --navy:   #0d1b4b;
     --blue:   #1a3a8f;
@@ -26,11 +28,11 @@
     text-transform: none;
     letter-spacing: -0.5px;
   }
-  .reveal h2 { font-size: 1.6em; border-bottom: 3px solid var(--navy); padding-bottom: 10px; margin-bottom: 0.5em; }
-  .reveal h3 { font-size: 1.1em; color: var(--blue); margin: 0.3em 0; }
-  .reveal p, .reveal li { font-size: 0.78em; line-height: 1.55; color: #1a1a2e; }
-  .reveal ul { margin: 0.3em 0; padding-left: 1.2em; }
-  .reveal li { margin: 0.25em 0; }
+  .reveal h2 { font-size: 1.35em; border-bottom: 3px solid var(--navy); padding-bottom: 6px; margin-bottom: 0.35em; }
+  .reveal h3 { font-size: 0.95em; color: var(--blue); margin: 0.2em 0; }
+  .reveal p, .reveal li { font-size: 0.62em; line-height: 1.32; color: #1a1a2e; }
+  .reveal ul { margin: 0.2em 0; padding-left: 1.1em; }
+  .reveal li { margin: 0.12em 0; }
   .reveal section { text-align: left; }
 
   /* Portada */
@@ -43,52 +45,52 @@
   .cover-bar { width: 80%; height: 4px; background: linear-gradient(90deg, var(--navy), var(--sky)); margin: 1em auto; border-radius: 2px; }
 
   /* Cajas de énfasis */
-  .box { border-radius: 8px; padding: 14px 18px; margin: 0.5em 0; }
+  .box { border-radius: 8px; padding: 8px 14px; margin: 0.3em 0; }
   .box-navy { background: var(--navy); color: white; }
-  .box-navy h3 { color: #a0c4ff !important; margin: 0 0 6px 0; }
-  .box-navy p, .box-navy li { color: #e8f0fe; font-size: 0.74em; }
+  .box-navy h3 { color: #a0c4ff !important; margin: 0 0 4px 0; }
+  .box-navy p, .box-navy li { color: #e8f0fe; font-size: 0.6em; }
   .box-light { background: var(--light); border-left: 4px solid var(--navy); }
   .box-green { background: #e6f4ec; border-left: 4px solid var(--green); }
   .box-red   { background: #fdecea; border-left: 4px solid var(--red); }
 
   /* Métrica grande */
-  .metric-grid { display: flex; gap: 16px; margin: 0.6em 0; flex-wrap: wrap; }
-  .metric { flex: 1; min-width: 130px; text-align: center; background: var(--navy); color: white; border-radius: 10px; padding: 14px 8px; }
-  .metric .num { font-size: 2em; font-weight: 700; color: #7dd3fc; line-height: 1; }
-  .metric .lbl { font-size: 0.62em; color: #c8dcff; margin-top: 4px; line-height: 1.3; }
+  .metric-grid { display: flex; gap: 12px; margin: 0.35em 0; flex-wrap: wrap; }
+  .metric { flex: 1; min-width: 130px; text-align: center; background: var(--navy); color: white; border-radius: 10px; padding: 8px 8px; }
+  .metric .num { font-size: 1.5em; font-weight: 700; color: #7dd3fc; line-height: 1; }
+  .metric .lbl { font-size: 0.5em; color: #c8dcff; margin-top: 3px; line-height: 1.2; }
   .metric.good .num { color: #6ee7b7; }
   .metric.warn .num { color: #fcd34d; }
   .metric.bad  .num { color: #f87171; }
 
   /* Tabla de comparativa */
-  .comp-table { width: 100%; border-collapse: collapse; font-size: 0.72em; margin: 0.6em 0; }
+  .comp-table { width: 100%; border-collapse: collapse; font-size: 0.58em; margin: 0.35em 0; }
   .comp-table thead tr { background: var(--navy); color: white; }
-  .comp-table th { padding: 8px 10px; text-align: left; }
-  .comp-table td { padding: 7px 10px; border-bottom: 1px solid #c8d4e8; }
+  .comp-table th { padding: 5px 8px; text-align: left; }
+  .comp-table td { padding: 4px 8px; border-bottom: 1px solid #c8d4e8; }
   .comp-table tr:nth-child(even) { background: var(--light); }
   .comp-table .best { font-weight: 700; color: var(--green); }
   .comp-table .ours { background: #ddf0e8 !important; }
 
   /* Pipeline diagrama */
-  .pipeline { display: flex; align-items: center; gap: 0; margin: 0.8em 0; }
-  .pipe-box { flex: 1; text-align: center; padding: 12px 8px; border-radius: 8px; font-size: 0.68em; }
-  .pipe-box .title { font-weight: 700; font-size: 1.1em; margin-bottom: 4px; }
+  .pipeline { display: flex; align-items: center; gap: 0; margin: 0.5em 0; }
+  .pipe-box { flex: 1; text-align: center; padding: 10px 6px; border-radius: 8px; font-size: 0.56em; }
+  .pipe-box .title { font-weight: 700; font-size: 1.05em; margin-bottom: 3px; }
   .pipe-box .sub { color: inherit; opacity: 0.85; }
   .pipe-box.n0 { background: #f0f4fb; border: 2px solid #c8d4e8; color: var(--grey); }
   .pipe-box.n1 { background: #1a3a8f; color: white; }
   .pipe-box.n2 { background: #0d5e3a; color: white; }
   .pipe-box.out { background: #0d1b4b; color: white; }
-  .arrow { font-size: 1.4em; color: var(--grey); padding: 0 4px; }
+  .arrow { font-size: 1.2em; color: var(--grey); padding: 0 4px; }
 
   /* Limitaciones / trabajo futuro */
-  .two-col { display: flex; gap: 20px; margin: 0.5em 0; }
+  .two-col { display: flex; gap: 16px; margin: 0.3em 0; }
   .two-col > div { flex: 1; }
 
   /* Número de slide */
   .reveal .slide-number { font-size: 0.55em; }
 
   /* Chip */
-  .chip { display: inline-block; background: var(--navy); color: white; border-radius: 20px; padding: 3px 12px; font-size: 0.65em; margin: 2px; }
+  .chip { display: inline-block; background: var(--navy); color: white; border-radius: 20px; padding: 3px 12px; font-size: 0.55em; margin: 2px; }
   .chip.green { background: var(--green); }
   .chip.sky   { background: var(--sky); }
 
@@ -98,12 +100,12 @@
   .hlr { color: var(--red); font-weight: 700; }
 
   /* Cita */
-  .cite { font-size: 0.6em; color: var(--grey); font-style: italic; }
+  .cite { font-size: 0.5em; color: var(--grey); font-style: italic; }
 
   /* Imagen de figura */
-  .fig-wrap { text-align: center; margin: 0.4em 0; }
-  .fig-wrap img { max-height: 310px; border: 1px solid #c8d4e8; border-radius: 6px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
-  .fig-cap { font-size: 0.6em; color: var(--grey); font-style: italic; margin-top: 6px; }
+  .fig-wrap { text-align: center; margin: 0.25em 0; }
+  .fig-wrap img { max-height: 230px; border: 1px solid #c8d4e8; border-radius: 6px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+  .fig-cap { font-size: 0.5em; color: var(--grey); font-style: italic; margin-top: 4px; }
 </style>
 </head>
 <body>
@@ -199,7 +201,7 @@
 
   <div class="pipeline">
     <div class="pipe-box n0">
-      <div class="title">📁 Código</div>
+      <div class="title">Código</div>
       <div class="sub">ficheros Python, JS,<br>YAML, .env, PEM…</div>
     </div>
     <div class="arrow">→</div>
@@ -214,7 +216,7 @@
     </div>
     <div class="arrow">→</div>
     <div class="pipe-box out">
-      <div class="title">⚠ Alertas</div>
+      <div class="title">Alertas</div>
       <div class="sub">Solo secretos<br>reales confirmados</div>
     </div>
   </div>
@@ -247,7 +249,7 @@
   <h2>4. Desarrollo y decisiones clave</h2>
 
   <div class="box box-navy" style="margin-bottom:0.5em">
-    <h3>📦 Corpus propio (Plan B) — SecretBench inaccesible</h3>
+    <h3>Corpus propio (Plan B) — SecretBench inaccesible</h3>
     <p>900 instancias etiquetadas · 400 secretos reales · 500 falsos positivos difíciles<br>
     Diseño anti-trivial: FP con formato válido de proveedor, pero en contexto de <em>test</em></p>
   </div>
@@ -388,7 +390,7 @@
     controls: true,
     center: false,
     width: 1100,
-    height: 680,
+    height: 860,
     margin: 0.06,
     transition: 'slide',
     transitionSpeed: 'fast',
