@@ -313,7 +313,7 @@ cd secret-scanner-tfm
 python3.12 -m venv .venv && source .venv/bin/activate
 
 # 3. Instalar dependencias
-pip install pandas numpy scikit-learn matplotlib seaborn joblib
+pip install pandas numpy scikit-learn matplotlib joblib
 
 # 4. Generar corpus (reproducible)
 python src/corpus_generator.py --out data/corpus --seed 42
