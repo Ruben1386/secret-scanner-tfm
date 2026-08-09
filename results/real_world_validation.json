@@ -1,0 +1,44 @@
+[
+  {
+    "repo": "test_keys",
+    "gitleaks_findings": 3,
+    "trufflehog_findings": 3,
+    "tier1_findings": 2,
+    "gt_union": 4,
+    "gt_intersect": 2,
+    "tp": 2,
+    "fp": 0,
+    "fn": 0,
+    "precision": 1.0,
+    "recall": 1.0,
+    "f1": 1.0
+  },
+  {
+    "repo": "detect-secrets testdata",
+    "gitleaks_findings": 35,
+    "trufflehog_findings": 1,
+    "tier1_findings": 9,
+    "gt_union": 36,
+    "gt_intersect": 0,
+    "tp": 0,
+    "fp": 0,
+    "fn": 0,
+    "precision": 0.4444,
+    "recall": 1.0,
+    "f1": 0.4444
+  },
+  {
+    "repo": "awslabs/git-secrets",
+    "gitleaks_findings": 3,
+    "trufflehog_findings": 0,
+    "tier1_findings": 2,
+    "gt_union": 3,
+    "gt_intersect": 0,
+    "tp": 0,
+    "fp": 0,
+    "fn": 0,
+    "precision": 0.0,
+    "recall": 1.0,
+    "f1": 0.0
+  }
+]

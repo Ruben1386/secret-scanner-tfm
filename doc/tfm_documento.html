@@ -1,0 +1,1207 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="es" xml:lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <meta name="author" content="Rubén Jiménez Ormad" />
+  <title>Detección Híbrida de Secretos en Código y Pipelines mediante Reglas, Entropía y Aprendizaje Automático</title>
+  <style>
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    /* The extra [class] is a hack that increases specificity enough to
+       override a similar rule in reveal.js */
+    ul.task-list[class]{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      font-size: inherit;
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+    /* CSS for syntax highlighting */
+    html { -webkit-text-size-adjust: 100%; }
+    pre > code.sourceCode { white-space: pre; position: relative; }
+    pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+    pre > code.sourceCode > span:empty { height: 1.2em; }
+    .sourceCode { overflow: visible; }
+    code.sourceCode > span { color: inherit; text-decoration: inherit; }
+    div.sourceCode { margin: 1em 0; }
+    pre.sourceCode { margin: 0; }
+    @media screen {
+    div.sourceCode { overflow: auto; }
+    }
+    @media print {
+    pre > code.sourceCode { white-space: pre-wrap; }
+    pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+    }
+    pre.numberSource code
+      { counter-reset: source-line 0; }
+    pre.numberSource code > span
+      { position: relative; left: -4em; counter-increment: source-line; }
+    pre.numberSource code > span > a:first-child::before
+      { content: counter(source-line);
+        position: relative; left: -1em; text-align: right; vertical-align: baseline;
+        border: none; display: inline-block;
+        -webkit-touch-callout: none; -webkit-user-select: none;
+        -khtml-user-select: none; -moz-user-select: none;
+        -ms-user-select: none; user-select: none;
+        padding: 0 4px; width: 4em;
+        color: #aaaaaa;
+      }
+    pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+    div.sourceCode
+      {   }
+    @media screen {
+    pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+    }
+    code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+    code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+    code span.at { color: #7d9029; } /* Attribute */
+    code span.bn { color: #40a070; } /* BaseN */
+    code span.bu { color: #008000; } /* BuiltIn */
+    code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+    code span.ch { color: #4070a0; } /* Char */
+    code span.cn { color: #880000; } /* Constant */
+    code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+    code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+    code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+    code span.dt { color: #902000; } /* DataType */
+    code span.dv { color: #40a070; } /* DecVal */
+    code span.er { color: #ff0000; font-weight: bold; } /* Error */
+    code span.ex { } /* Extension */
+    code span.fl { color: #40a070; } /* Float */
+    code span.fu { color: #06287e; } /* Function */
+    code span.im { color: #008000; font-weight: bold; } /* Import */
+    code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+    code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+    code span.op { color: #666666; } /* Operator */
+    code span.ot { color: #007020; } /* Other */
+    code span.pp { color: #bc7a00; } /* Preprocessor */
+    code span.sc { color: #4070a0; } /* SpecialChar */
+    code span.ss { color: #bb6688; } /* SpecialString */
+    code span.st { color: #4070a0; } /* String */
+    code span.va { color: #19177c; } /* Variable */
+    code span.vs { color: #4070a0; } /* VerbatimString */
+    code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+    /* CSS for citations */
+    div.csl-bib-body { }
+    div.csl-entry {
+      clear: both;
+      margin-bottom: 0em;
+    }
+    .hanging-indent div.csl-entry {
+      margin-left:2em;
+      text-indent:-2em;
+    }
+    div.csl-left-margin {
+      min-width:2em;
+      float:left;
+    }
+    div.csl-right-inline {
+      margin-left:2em;
+      padding-left:1em;
+    }
+    div.csl-indent {
+      margin-left: 2em;
+    }  </style>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+<header id="title-block-header">
+<h1 class="title">Detección Híbrida de Secretos en Código y Pipelines
+mediante Reglas, Entropía y Aprendizaje Automático</h1>
+<p class="subtitle">Trabajo de Fin de Máster — Máster en IA Aplicada a
+la Ciberseguridad</p>
+<p class="author">Rubén Jiménez Ormad</p>
+<p class="date">Agosto de 2026</p>
+</header>
+<nav id="TOC" role="doc-toc">
+<ul>
+<li><a href="#resumen-ejecutivo" id="toc-resumen-ejecutivo">Resumen
+ejecutivo</a></li>
+<li><a href="#introducción" id="toc-introducción">Introducción</a>
+<ul>
+<li><a href="#el-problema-credenciales-en-el-código-fuente"
+id="toc-el-problema-credenciales-en-el-código-fuente">El problema:
+credenciales en el código fuente</a></li>
+<li><a href="#sec:estado-arte" id="toc-sec:estado-arte">Soluciones
+existentes y sus limitaciones</a></li>
+</ul></li>
+<li><a href="#aportaciones" id="toc-aportaciones">Aportaciones</a></li>
+<li><a href="#definición-de-la-solución"
+id="toc-definición-de-la-solución">Definición de la solución</a>
+<ul>
+<li><a href="#fundamentos-teóricos"
+id="toc-fundamentos-teóricos">Fundamentos teóricos</a></li>
+<li><a href="#arquitectura-del-sistema"
+id="toc-arquitectura-del-sistema">Arquitectura del sistema</a></li>
+<li><a href="#características-contextuales-del-nivel-2"
+id="toc-características-contextuales-del-nivel-2">Características
+contextuales del Nivel 2</a></li>
+<li><a href="#decisiones-de-diseño-y-diferenciación"
+id="toc-decisiones-de-diseño-y-diferenciación">Decisiones de diseño y
+diferenciación</a></li>
+</ul></li>
+<li><a href="#desarrollo" id="toc-desarrollo">Desarrollo</a>
+<ul>
+<li><a href="#construcción-del-corpus-de-evaluación"
+id="toc-construcción-del-corpus-de-evaluación">Construcción del corpus
+de evaluación</a></li>
+<li><a href="#iteraciones-en-el-diseño-del-corpus"
+id="toc-iteraciones-en-el-diseño-del-corpus">Iteraciones en el diseño
+del corpus</a></li>
+<li><a href="#implementación-del-nivel-1"
+id="toc-implementación-del-nivel-1">Implementación del Nivel 1</a></li>
+<li><a href="#entrenamiento-y-validación-del-nivel-2"
+id="toc-entrenamiento-y-validación-del-nivel-2">Entrenamiento y
+validación del Nivel 2</a></li>
+<li><a href="#comparativa-con-herramientas-del-estado-del-arte"
+id="toc-comparativa-con-herramientas-del-estado-del-arte">Comparativa
+con herramientas del estado del arte</a></li>
+</ul></li>
+<li><a href="#evaluación" id="toc-evaluación">Evaluación</a>
+<ul>
+<li><a href="#rendimiento-sobre-el-corpus-propio"
+id="toc-rendimiento-sobre-el-corpus-propio">Rendimiento sobre el corpus
+propio</a></li>
+<li><a href="#importancia-de-características"
+id="toc-importancia-de-características">Importancia de
+características</a></li>
+<li><a href="#validación-sobre-repositorios-reales"
+id="toc-validación-sobre-repositorios-reales">Validación sobre
+repositorios reales</a></li>
+</ul></li>
+<li><a href="#conclusión" id="toc-conclusión">Conclusión</a>
+<ul>
+<li><a href="#aprendizaje-generado"
+id="toc-aprendizaje-generado">Aprendizaje generado</a></li>
+<li><a href="#expectativa-inicial-versus-resultados-reales"
+id="toc-expectativa-inicial-versus-resultados-reales">Expectativa
+inicial versus resultados reales</a></li>
+<li><a href="#mayores-retos" id="toc-mayores-retos">Mayores
+retos</a></li>
+<li><a href="#trabajo-futuro" id="toc-trabajo-futuro">Trabajo
+futuro</a></li>
+<li><a href="#limitaciones-del-trabajo"
+id="toc-limitaciones-del-trabajo">Limitaciones del trabajo</a></li>
+</ul></li>
+<li><a href="#bibliografía" id="toc-bibliografía">Bibliografía</a></li>
+<li><a href="#anexos" id="toc-anexos">Anexos</a>
+<ul>
+<li><a href="#anexo-a-estructura-del-repositorio-de-código"
+id="toc-anexo-a-estructura-del-repositorio-de-código">Anexo A —
+Estructura del repositorio de código</a></li>
+<li><a href="#anexo-b-catálogo-de-patrones-del-nivel-1"
+id="toc-anexo-b-catálogo-de-patrones-del-nivel-1">Anexo B — Catálogo de
+patrones del Nivel 1</a></li>
+<li><a href="#anexo-c-protocolo-de-reproducción-de-resultados"
+id="toc-anexo-c-protocolo-de-reproducción-de-resultados">Anexo C —
+Protocolo de reproducción de resultados</a></li>
+</ul></li>
+</ul>
+</nav>
+<div class="pagebreak">
+
+</div>
+<h1 class="unnumbered" id="resumen-ejecutivo">Resumen ejecutivo</h1>
+<p>La exposición accidental de credenciales —claves de API, tokens de
+acceso, contraseñas y claves privadas criptográficas— en repositorios de
+código fuente es uno de los vectores de ataque más frecuentes y
+evitables en la industria del software. Solo en 2023 se detectaron más
+de 12,8 millones de secretos expuestos en repositorios públicos de
+GitHub, un 28 % más que el año anterior <span class="citation"
+data-cites="gitguardian2024">(<a href="#ref-gitguardian2024"
+role="doc-biblioref">GitGuardian, 2024</a>)</span>, y un análisis
+académico de 818 repositorios verificó manualmente más de 15.000
+credenciales reales <span class="citation" data-cites="basak2023">(<a
+href="#ref-basak2023" role="doc-biblioref">Basak et al.,
+2023</a>)</span>. Las herramientas actuales de detección, aunque
+extendidas, adolecen de una precisión insuficiente: generan un elevado
+volumen de falsas alertas que los equipos de desarrollo acaban
+ignorando, reduciendo así la efectividad del control de seguridad.</p>
+<p>Este trabajo presenta un sistema híbrido de detección de secretos en
+código fuente compuesto por dos niveles complementarios. El
+<strong>Nivel 1</strong> implementa un detector basado en expresiones
+regulares para formatos conocidos de proveedores y análisis de entropía
+de Shannon para cadenas de alta aleatoriedad. El <strong>Nivel
+2</strong> aplica un clasificador de aprendizaje automático (Random
+Forest) sobre características contextuales extraídas por el Nivel 1, con
+el objetivo específico de reducir los falsos positivos sin sacrificar la
+cobertura.</p>
+<p>Las principales aportaciones del trabajo son: (1) un corpus de
+evaluación propio con 900 instancias etiquetadas que incluye secretos
+reales de formato válido y falsos positivos difíciles con señales de
+contexto ambiguas; (2) un pipeline de detección completo, integrable
+como <em>pre-commit hook</em> o en pipelines CI/CD; y (3) una evaluación
+comparativa rigurosa frente a las herramientas de referencia del sector,
+GitLeaks y TruffleHog.</p>
+<p>Los resultados muestran que el Nivel 1 alcanza una cobertura
+prácticamente total (Recall = 0,99) a costa de una precisión moderada
+(F1 = 0,71), y que el Nivel 2 eleva la precisión hasta 0,98 con un F1 de
+0,95, superando a GitLeaks (F1 = 0,70) y TruffleHog (F1 = 0,28) en el
+mismo corpus. La validación sobre repositorios reales confirma que el
+sistema no genera falsas alarmas en código limpio y detecta con
+precisión perfecta los secretos reconocidos por ambas herramientas de
+referencia.</p>
+<div class="pagebreak">
+
+</div>
+<h1 id="introducción">Introducción</h1>
+<h2 id="el-problema-credenciales-en-el-código-fuente">El problema:
+credenciales en el código fuente</h2>
+<p>El desarrollo de software moderno depende de un ecosistema de
+servicios externos —plataformas en la nube, bases de datos, APIs de
+terceros, sistemas de autenticación— con los que las aplicaciones se
+comunican mediante credenciales: claves de API, tokens de acceso OAuth,
+cadenas de conexión a bases de datos, claves privadas RSA o SSH. Estas
+credenciales, por su naturaleza, deben mantenerse fuera del código
+fuente. Sin embargo, la presión de los plazos de entrega, la falta de
+formación o la simple negligencia provocan que con frecuencia sean
+incluidas directamente en los ficheros de código o configuración y
+confirmadas en el sistema de control de versiones.</p>
+<p>Una vez que una credencial llega al historial de un repositorio,
+incluso si se elimina en un <em>commit</em> posterior, permanece
+accesible para quien tenga acceso a ese historial. Si el repositorio es
+público —o si es privado pero sufre una filtración—, la credencial queda
+expuesta de forma efectiva e irreversible sin una rotación
+explícita.</p>
+<p>La magnitud del problema está bien documentada. Basak <em>et al.</em>
+<span class="citation" data-cites="basak2023">(<a href="#ref-basak2023"
+role="doc-biblioref">Basak et al., 2023</a>)</span> analizaron más de
+818 repositorios públicos e identificaron 97.479 candidatos a secreto,
+de los cuales 15.084 fueron verificados manualmente como credenciales
+reales. El mismo estudio estima que uno de cada diez desarrolladores
+activos filtró al menos una credencial durante el año 2022. Por su
+parte, GitGuardian <span class="citation"
+data-cites="gitguardian2024">(<a href="#ref-gitguardian2024"
+role="doc-biblioref">GitGuardian, 2024</a>)</span> reporta que el número
+de secretos expuestos en repositorios públicos de GitHub ha crecido un
+28 % interanual, con más de 12,8 millones de incidentes detectados en
+2023.</p>
+<p>Las consecuencias son directas: acceso no autorizado a
+infraestructuras en la nube, robo de datos de clientes, compromiso de
+pipelines de integración continua y, en el peor caso, cadenas de
+suministro de software comprometidas. El coste medio de una brecha
+derivada de credenciales comprometidas alcanza los 4,81 millones de
+dólares según el informe de IBM <span class="citation"
+data-cites="ibm2024">(<a href="#ref-ibm2024" role="doc-biblioref">IBM
+Security, 2024</a>)</span>.</p>
+<h2 id="sec:estado-arte">Soluciones existentes y sus limitaciones</h2>
+<p>Existen tres grandes familias de herramientas para abordar este
+problema:</p>
+<p><strong>Detección por patrones (expresiones regulares).</strong>
+Herramientas como GitLeaks <span class="citation"
+data-cites="gitleaks">(<a href="#ref-gitleaks"
+role="doc-biblioref">Leijssen &amp; Gitleaks Contributors,
+2024</a>)</span> y TruffleHog <span class="citation"
+data-cites="trufflehog">(<a href="#ref-trufflehog"
+role="doc-biblioref">Trufflesecurity, 2024</a>)</span> mantienen
+catálogos de expresiones regulares para los formatos específicos de
+credenciales de los principales proveedores (AWS, GitHub, Google,
+Stripe, etc.). Son rápidas y deterministas, pero generan un número
+significativo de falsas alertas cuando encuentran cadenas que coinciden
+con el patrón pero no son credenciales activas —claves de ejemplo en
+documentación, valores en ficheros de <em>test</em>, o identificadores
+de alta entropía como UUIDs o <em>hashes</em> de integridad.</p>
+<p><strong>Detección por entropía.</strong> El análisis de entropía de
+Shannon permite detectar cadenas de alta aleatoriedad típicas de claves
+criptográficas o tokens generados, sin necesidad de conocer su formato a
+priori. TruffleHog lo combina con sus reglas de patrones. El
+inconveniente principal es que muchas cadenas legítimas —UUIDs,
+<em>hashes</em> SHA, datos codificados en Base64— también presentan alta
+entropía, lo que incrementa la tasa de falsas alarmas.</p>
+<p><strong>Análisis con modelos de lenguaje.</strong> La línea de
+investigación más reciente propone utilizar modelos de lenguaje (LLM o
+<em>encoders</em> ajustados sobre código) para analizar el contexto
+semántico de una cadena sospechosa: si la variable que la contiene tiene
+nombre de credencial, si el fichero circundante es de producción o de
+prueba, si hay comentarios que la describan como ejemplo. Esta línea
+tiene su origen en propuestas de aprendizaje automático clásico como la
+de Saha <em>et al.</em> <span class="citation" data-cites="saha2020">(<a
+href="#ref-saha2020" role="doc-biblioref">Saha et al., 2020</a>)</span>,
+que ya en 2020 mostró que un clasificador supervisado sobre
+características léxicas y contextuales reducía sustancialmente los
+falsos positivos frente a un detector basado solo en reglas —la misma
+estrategia que adopta el Nivel 2 de este trabajo—. Trabajos más
+recientes que sustituyen el clasificador clásico por un LLM ajustado,
+como el de Rahman <em>et al.</em> <span class="citation"
+data-cites="rahman2025">(<a href="#ref-rahman2025"
+role="doc-biblioref">Rahman et al., 2025</a>)</span>, alcanzan valores
+de F1 superiores a 0,98 combinando extracción de candidatos con
+clasificación contextual. Sin embargo, estos enfoques conllevan una
+paradoja: enviar secretos candidatos a una API externa para su
+clasificación introduce el riesgo que se pretende mitigar.</p>
+<p>La brecha que este trabajo aborda está, por tanto, en la intersección
+de estas tres familias: un sistema que combine la cobertura de los
+patrones y la entropía con una clasificación contextual local, sin
+depender de servicios externos, y que sea evaluado con rigor frente a
+las herramientas del estado del arte.</p>
+<h1 id="aportaciones">Aportaciones</h1>
+<p>Las aportaciones concretas de este trabajo, inexistentes antes de su
+desarrollo, son las siguientes:</p>
+<ol type="1">
+<li><p><strong>Un corpus de evaluación propio con 900 instancias
+etiquetadas</strong> (400 secretos reales de formato válido y 500 falsos
+positivos difíciles), diseñado específicamente para evitar la
+separabilidad trivial entre clases y reproducible mediante semilla fija
+(<code>seed=42</code>).</p></li>
+<li><p><strong>Un detector de Nivel 1 (N1)</strong> que combina 19
+patrones de expresiones regulares para formatos de proveedores conocidos
+con análisis de entropía de Shannon, implementado como librería Python
+evaluable con métricas Precision/Recall/F1, con soporte de marcadores de
+supresión <em>inline</em> (<code># pragma: allowlist</code>,
+<code># IGNORE</code>) y exportación de candidatos con vector de
+características para el clasificador posterior.</p></li>
+<li><p><strong>Un clasificador de Nivel 2 (N2)</strong> basado en Random
+Forest que opera sobre 17 características contextuales —composición del
+token, presencia de prefijos de proveedor, rol del fichero, comentarios
+circundantes— entrenado sobre los candidatos del N1 con el objetivo
+específico de reducir falsos positivos manteniendo la
+cobertura.</p></li>
+<li><p><strong>Una evaluación comparativa cuantitativa</strong> frente a
+GitLeaks v8.30 y TruffleHog v3.96 sobre el mismo corpus, con métricas
+Precision, Recall y F1 calculadas bajo condiciones idénticas y
+verificadas en repositorios reales públicos.</p></li>
+<li><p><strong>Un pipeline integrable en entornos DevSecOps</strong>:
+<em>pre-commit hook</em> operativo y esquema de integración CI/CD
+alineado con las prácticas recomendadas por el NIST Secure Software
+Development Framework <span class="citation" data-cites="nist2022">(<a
+href="#ref-nist2022" role="doc-biblioref">NIST, 2022</a>)</span>, con
+guía de reproducción completa en el repositorio de código
+adjunto.</p></li>
+</ol>
+<h1 id="definición-de-la-solución">Definición de la solución</h1>
+<h2 id="fundamentos-teóricos">Fundamentos teóricos</h2>
+<h3 id="entropía-de-shannon">Entropía de Shannon</h3>
+<p>La entropía de Shannon <span class="citation"
+data-cites="shannon1948">(<a href="#ref-shannon1948"
+role="doc-biblioref">Shannon, 1948</a>)</span> mide la cantidad de
+información —o incertidumbre— contenida en una cadena de caracteres.
+Para una cadena <em>s</em> de longitud <em>n</em> con alfabeto
+<em>A</em>, se define como:</p>
+<blockquote>
+<p><strong>H(s) = −Σ p(c) · log₂ p(c)</strong>, sumando sobre cada
+carácter <em>c</em> del alfabeto <em>A</em></p>
+</blockquote>
+<p>donde <em>p(c)</em> es la frecuencia relativa del carácter <em>c</em>
+en <em>s</em>. Las cadenas generadas aleatoriamente (como tokens
+criptográficos) tienden a tener entropía alta (típicamente H &gt; 4,5
+sobre un alfabeto alfanumérico), mientras que palabras de diccionario o
+cadenas repetitivas tienen entropía baja. Este umbral de 4,5 bits fue
+validado empíricamente en el contexto de detección de secretos por
+Trufflesecurity <span class="citation" data-cites="trufflehog">(<a
+href="#ref-trufflehog" role="doc-biblioref">Trufflesecurity,
+2024</a>)</span> y adoptado en este trabajo.</p>
+<h3 id="expresiones-regulares-para-formatos-de-proveedor">Expresiones
+regulares para formatos de proveedor</h3>
+<p>Los principales proveedores de servicios en la nube y plataformas de
+desarrollo publican —o permiten inferir— los formatos exactos de sus
+credenciales. Por ejemplo, las claves de acceso de AWS comienzan siempre
+con el prefijo <code>AKIA</code> o <code>ASIA</code> seguido de 16
+caracteres alfanuméricos en mayúsculas. Estos formatos deterministas se
+prestan a la detección por expresiones regulares con alta precisión para
+los tipos cubiertos, aunque no permiten detectar credenciales de formato
+arbitrario.</p>
+<h3 id="clasificación-supervisada-con-random-forest">Clasificación
+supervisada con Random Forest</h3>
+<p>Un clasificador Random Forest <span class="citation"
+data-cites="breiman2001">(<a href="#ref-breiman2001"
+role="doc-biblioref">Breiman, 2001</a>)</span> es un conjunto de árboles
+de decisión entrenados sobre submuestras aleatorias del conjunto de
+datos y subconjuntos aleatorios de características. La predicción final
+es el voto mayoritario de todos los árboles. Sus ventajas para este
+problema son la robustez ante <em>overfitting</em> con conjuntos de
+datos pequeños, la capacidad de manejar características heterogéneas
+(booleanas, reales, ordinales) sin normalización, y la interpretabilidad
+mediante importancias de características —crucial para justificar las
+decisiones del sistema en un contexto de seguridad.</p>
+<h2 id="arquitectura-del-sistema">Arquitectura del sistema</h2>
+<p>El sistema se organiza en dos niveles secuenciales, tal como ilustra
+la Figura 1:</p>
+<p><strong>Nivel 1 — Detector base (N1).</strong> Analiza cada línea de
+los ficheros de código mediante dos mecanismos complementarios: (a)
+comparación con los 19 patrones de expresiones regulares del catálogo; y
+(b) análisis de entropía de Shannon sobre tokens entre comillas de
+longitud ≥ 20 caracteres. Las líneas con marcadores de supresión
+<em>inline</em> son ignoradas. Cada hallazgo genera un objeto
+<code>Candidate</code> que incluye el fichero, la línea, la regla que lo
+disparó y un vector de 17 características de contexto.</p>
+<p><strong>Nivel 2 — Clasificador de reducción de falsos positivos
+(N2).</strong> Recibe los candidatos del N1 y los clasifica como
+<em>secreto real</em> o <em>falso positivo</em> mediante el Random
+Forest entrenado. Solo los candidatos clasificados como secretos reales
+se reportan al usuario. El N2 nunca puede recuperar un secreto que el N1
+no detectó —su única función es filtrar.</p>
+<h2 id="características-contextuales-del-nivel-2">Características
+contextuales del Nivel 2</h2>
+<p>El vector de características diseñado para el N2 captura tanto
+propiedades intrínsecas del token como señales del contexto en que
+aparece (Tabla 1). Las más discriminativas, según el análisis de
+importancias, son: si el fichero pertenece a un directorio de
+<em>tests</em> (<code>ctx_in_test_file</code>), si la línea anterior
+contiene comentarios descriptivos de ejemplo
+(<code>ctx_sample_comment</code>), la entropía del token y los ratios de
+composición de caracteres.</p>
+<table>
+<caption>Características del vector de entrada al clasificador
+N2.</caption>
+<colgroup>
+<col style="width: 30%" />
+<col style="width: 38%" />
+<col style="width: 30%" />
+</colgroup>
+<thead>
+<tr>
+<th style="text-align: left;">Característica</th>
+<th style="text-align: center;">Tipo</th>
+<th style="text-align: left;">Descripción</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><code>length</code></td>
+<td style="text-align: center;">Real</td>
+<td style="text-align: left;">Longitud del token candidato</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>entropy</code></td>
+<td style="text-align: center;">Real</td>
+<td style="text-align: left;">Entropía de Shannon del token</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>charset_diversity</code></td>
+<td style="text-align: center;">Real</td>
+<td style="text-align: left;">Proporción de caracteres únicos sobre
+total</td>
+</tr>
+<tr>
+<td
+style="text-align: left;"><code>ratio_upper/lower/digit/special</code></td>
+<td style="text-align: center;">Real</td>
+<td style="text-align: left;">Proporción por tipo de carácter</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>n_segments</code></td>
+<td style="text-align: center;">Entero</td>
+<td style="text-align: left;">Número de separadores (-, _, .)</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>is_hex</code></td>
+<td style="text-align: center;">Booleano</td>
+<td style="text-align: left;">¿Es hexadecimal puro?</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>is_uuid_shape</code></td>
+<td style="text-align: center;">Booleano</td>
+<td style="text-align: left;">¿Tiene formato UUID?</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>has_known_prefix</code></td>
+<td style="text-align: center;">Booleano</td>
+<td style="text-align: left;">¿Comienza con prefijo de proveedor
+conocido?</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>detected_by_pattern</code></td>
+<td style="text-align: center;">Booleano</td>
+<td style="text-align: left;">¿Lo detectó el motor de patrones?</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>ctx_has_fp_word</code></td>
+<td style="text-align: center;">Booleano</td>
+<td style="text-align: left;">¿Hay palabras asociadas a FP en la
+línea?</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>ctx_has_secret_word</code></td>
+<td style="text-align: center;">Booleano</td>
+<td style="text-align: left;">¿La variable tiene nombre de
+credencial?</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>ctx_has_placeholder</code></td>
+<td style="text-align: center;">Booleano</td>
+<td style="text-align: left;">¿Contiene términos de
+<em>placeholder</em>?</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>ctx_in_test_file</code></td>
+<td style="text-align: center;">Booleano</td>
+<td style="text-align: left;">¿El fichero pertenece a un directorio de
+test?</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>ctx_sample_comment</code></td>
+<td style="text-align: center;">Booleano</td>
+<td style="text-align: left;">¿La línea anterior es un comentario de
+ejemplo?</td>
+</tr>
+</tbody>
+</table>
+<h2 id="decisiones-de-diseño-y-diferenciación">Decisiones de diseño y
+diferenciación</h2>
+<p><strong>Clasificación local frente a API externa.</strong> La
+elección de un clasificador local (Random Forest sobre características
+manuales) frente a un LLM externo responde a una restricción fundamental
+del dominio: enviar candidatos a secreto a una API de clasificación
+externa introduce el mismo riesgo que se pretende mitigar. La decisión
+prioriza la privacidad y la reproducibilidad sobre la capacidad del
+modelo.</p>
+<p><strong>Random Forest frente a encoder ajustado.</strong> Un
+<em>encoder</em> del tipo CodeBERT <span class="citation"
+data-cites="feng2020">(<a href="#ref-feng2020" role="doc-biblioref">Feng
+et al., 2020</a>)</span> fine-tuned sobre datos etiquetados habría
+ofrecido mayor potencia expresiva. Sin embargo, el hardware disponible
+(CPU Intel i5 sin GPU, 15 GB de RAM) y el corpus de tamaño moderado
+hacen que el Random Forest sea la elección técnicamente adecuada:
+converge en segundos, no requiere GPU y generaliza bien con menos de
+1.000 instancias de entrenamiento. El uso de un modelo más complejo
+habría sido difícilmente justificable sin un conjunto de datos
+sustancialmente mayor.</p>
+<p><strong>Corpus propio frente a SecretBench.</strong> El acceso al
+dataset académico SecretBench <span class="citation"
+data-cites="basak2023">(<a href="#ref-basak2023"
+role="doc-biblioref">Basak et al., 2023</a>)</span> —97.479 instancias
+de repositorios reales— requiere firma de acuerdo de protección de datos
+con los autores de la North Carolina State University, lo que no fue
+posible dentro del plazo del trabajo. El corpus propio fue diseñado para
+evitar la separabilidad trivial entre clases: los falsos positivos
+incluyen credenciales con formato válido de proveedor pero situadas en
+contextos de <em>test</em> o documentación, y los secretos reales
+incluyen tanto valores con prefijo de proveedor como valores genéricos
+de alta entropía en variables con nombre de credencial.</p>
+<h1 id="desarrollo">Desarrollo</h1>
+<h2 id="construcción-del-corpus-de-evaluación">Construcción del corpus
+de evaluación</h2>
+<p>El primer reto fue disponer de datos etiquetados con los que medir el
+sistema. Ante la imposibilidad de acceder a SecretBench en el plazo
+disponible, se diseñó un corpus propio que equilibra representatividad y
+controlabilidad.</p>
+<p>El corpus contiene 900 instancias distribuidas entre 100 ficheros de
+texto que simulan código real en distintos lenguajes (Python,
+JavaScript, YAML, <code>.env</code>, PEM). Cada instancia es una línea
+de código que contiene un valor candidato, con su etiqueta
+<em>secreto</em> o <em>falso positivo</em> registrada en un fichero
+<code>ground_truth.json</code> verificable.</p>
+<p><strong>Secretos reales (400 instancias).</strong> El 60 % son
+valores con formato válido de proveedor —AWS Access Key ID, tokens de
+GitHub, claves de Stripe, JWT, claves privadas RSA— generados con las
+plantillas de expresión regular de cada proveedor. El 40 % restante son
+cadenas aleatorias de alta entropía en variables con nombre de
+credencial (<code>api_key</code>, <code>client_secret</code>,
+<code>password</code>), diseñadas para ser detectables solo por el motor
+de entropía.</p>
+<p><strong>Falsos positivos difíciles (500 instancias).</strong> El 50 %
+son valores con formato válido de proveedor pero situados en ficheros
+con nombre <code>test_NNN.txt</code> y precedidos de comentarios del
+tipo <code># sample value, do not use in prod</code>. El otro 50 % son
+cadenas de alta entropía que no son secretos: UUIDs, <em>hashes</em>
+SHA-1/SHA-256, <em>hashes</em> de integridad npm
+(<code>sha512-...</code>) e identificadores de activos de
+<em>build</em>.</p>
+<p>Para evitar que el clasificador aprenda artefactos de construcción,
+se introdujo un 5 % de ruido cruzado: secretos reales en ficheros de
+<em>test</em> y valores de ejemplo en ficheros de producción. El corpus
+es completamente reproducible con
+<code>python corpus_generator.py --seed 42</code>.</p>
+<h2 id="iteraciones-en-el-diseño-del-corpus">Iteraciones en el diseño
+del corpus</h2>
+<p>La primera versión del corpus resultó en un clasificador con F1 =
+1,00, lo que constituye una señal de alerta: el modelo estaba
+aprendiendo una sola característica (<code>detected_by_pattern</code>)
+que separaba perfectamente las clases porque todos los secretos reales
+habían sido generados como patrones y todos los falsos positivos como
+valores de entropía. La segunda iteración introdujo demasiado ruido (15
+% cruzado) y produjo un clasificador con Recall = 0,58, lo que destruía
+el valor práctico del sistema. La versión final con 5 % de ruido y
+señales de contexto claras pero no deterministas produjo un resultado
+honesto y representativo: F1 = 0,95 con todas las características
+informativas contribuyendo.</p>
+<h2 id="implementación-del-nivel-1">Implementación del Nivel 1</h2>
+<p>El Nivel 1 es una extensión directa del detector desarrollado en el
+Módulo 6 del máster <span class="citation"
+data-cites="jimenez2026m6">(<a href="#ref-jimenez2026m6"
+role="doc-biblioref">Jiménez Ormad, 2026</a>)</span>, al que se
+añadieron dos capacidades: la extracción del vector de características
+de contexto por cada candidato, y la evaluación cuantitativa contra el
+<em>ground truth</em>. Se portó también el mecanismo de supresión por
+marcadores <em>inline</em> (<code># IGNORE</code>,
+<code># pragma: allowlist</code>, <code># noqa: secrets</code>), cuya
+ausencia en la primera versión fue detectada al validar sobre el corpus
+de Yelp/detect-secrets, donde una línea marcada con
+<code># pragma: allowlist secret</code> era incorrectamente
+reportada.</p>
+<p>La detección de <em>placeholders</em> —cadenas como
+<code>AKIAIOSFODNN7EXAMPLE</code> (clave de ejemplo canónica de AWS),
+<code>changeme</code>, <code>your_api_key_here</code>— se implementa
+mediante una lista de prefijos y subcadenas que se comprueban antes de
+emitir cualquier hallazgo. Durante la validación en el repositorio de
+Yelp/detect-secrets se confirmó que la clave
+<code>AKIAIOSFODNN7EXAMPLE</code> era correctamente ignorada (contiene
+el sufijo <code>EXAMPLE</code>), mientras que
+<code>AKIATESTTESTTESTTEST</code> —sin dicho sufijo— era reportada. Esta
+diferencia de comportamiento respecto a GitLeaks ilustra la sensibilidad
+de las reglas de <em>placeholder</em> y se documenta como una limitación
+conocida.</p>
+<h2 id="entrenamiento-y-validación-del-nivel-2">Entrenamiento y
+validación del Nivel 2</h2>
+<p>El clasificador se entrenó con scikit-learn sobre los 1.007
+candidatos generados por el N1 sobre el corpus completo (551 secretos
+reales, 456 falsos positivos). La partición de evaluación siguió el
+protocolo 70/30 estratificado con validación cruzada de cinco pliegues
+(<em>stratified 5-fold cross-validation</em>) para compensar el tamaño
+moderado del conjunto. Los hiperparámetros del Random Forest (300
+estimadores, <code>class_weight='balanced'</code>,
+<code>random_state=42</code>) se mantuvieron fijos sin ajuste, siguiendo
+el principio de parsimonia: el conjunto de datos no justificaba una
+búsqueda exhaustiva.</p>
+<p>Un error de implementación relevante fue detectado en la primera
+ejecución del N2: las características <code>ctx_in_test_file</code> y
+<code>ctx_sample_comment</code>, añadidas al N1 tras la redacción
+inicial del N2, no se incluyeron en la lista de características de
+entrada del clasificador. El resultado fue un F1 de 0,62 con un
+clasificador ciego a las dos señales más informativas. Al corregirlo, el
+F1 saltó a 0,95. Este incidente ilustra la importancia de mantener
+sincronizados los módulos de extracción y clasificación en sistemas
+<em>pipeline</em>.</p>
+<h2 id="comparativa-con-herramientas-del-estado-del-arte">Comparativa
+con herramientas del estado del arte</h2>
+<p>GitLeaks v8.30 y TruffleHog v3.96 se instalaron como binarios nativos
+y se ejecutaron sobre el mismo corpus en modo <em>filesystem</em>
+—equivalente al uso en pre-commit, sin historial git—. Sus hallazgos se
+mapearon contra el <code>ground_truth.json</code> para calcular las
+mismas métricas que las del pipeline propio. Esta comparación se realizó
+también sobre tres repositorios reales públicos para validar que el
+corpus no introducía sesgos favorables a nuestro sistema.</p>
+<h1 id="evaluación">Evaluación</h1>
+<h2 id="rendimiento-sobre-el-corpus-propio">Rendimiento sobre el corpus
+propio</h2>
+<p>La Tabla 2 resume los resultados de los cuatro sistemas evaluados.
+GitLeaks, TruffleHog y el N1 son deterministas —no aprenden de los
+datos— por lo que se evaluaron sobre el corpus completo (900
+instancias). El N2, al ser un clasificador entrenado, se evalúa
+exclusivamente sobre el subconjunto de <em>test</em> no visto durante el
+entrenamiento (30 %, 303 instancias), para evitar fuga de información y
+garantizar una estimación honesta de su rendimiento.</p>
+<table style="width:100%;">
+<caption>Comparativa de rendimiento sobre corpus propio (n = 900
+instancias).</caption>
+<colgroup>
+<col style="width: 17%" />
+<col style="width: 21%" />
+<col style="width: 21%" />
+<col style="width: 21%" />
+<col style="width: 17%" />
+</colgroup>
+<thead>
+<tr>
+<th style="text-align: left;">Sistema</th>
+<th style="text-align: center;">Precision</th>
+<th style="text-align: center;">Recall</th>
+<th style="text-align: center;">F1-score</th>
+<th style="text-align: left;">Notas</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">TruffleHog v3.96</td>
+<td style="text-align: center;">0,48</td>
+<td style="text-align: center;">0,20</td>
+<td style="text-align: center;">0,28</td>
+<td style="text-align: left;">Recall muy bajo en modo filesystem</td>
+</tr>
+<tr>
+<td style="text-align: left;">GitLeaks v8.30</td>
+<td style="text-align: center;">0,65</td>
+<td style="text-align: center;">0,76</td>
+<td style="text-align: center;">0,70</td>
+<td style="text-align: left;">Referencia del sector</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>N1</strong> (regex +
+entropía)</td>
+<td style="text-align: center;">0,57</td>
+<td style="text-align: center;"><strong>0,99</strong></td>
+<td style="text-align: center;">0,72</td>
+<td style="text-align: left;">Alta cobertura, muchos FP</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>N2</strong> (N1 + Random
+Forest)</td>
+<td style="text-align: center;"><strong>0,98</strong></td>
+<td style="text-align: center;">0,93</td>
+<td style="text-align: center;"><strong>0,95</strong></td>
+<td style="text-align: left;">Mejor F1 global</td>
+</tr>
+</tbody>
+</table>
+<p>La Figura 1 muestra esta comparativa de forma visual.</p>
+<figure>
+<img src="../results/figures/fig1_comparison_bar.png"
+style="width:52.0%"
+alt="Comparativa Precision / Recall / F1-score de los cuatro sistemas evaluados. El Nivel 2 (Tier 2 + RF) obtiene el mejor equilibrio global, con una mejora de F1 de +0,25 respecto a GitLeaks, la herramienta de referencia." />
+<figcaption aria-hidden="true">Comparativa Precision / Recall / F1-score
+de los cuatro sistemas evaluados. El Nivel 2 (Tier 2 + RF) obtiene el
+mejor equilibrio global, con una mejora de F1 de +0,25 respecto a
+GitLeaks, la herramienta de referencia.</figcaption>
+</figure>
+<p>La mejora más significativa del N2 respecto al N1 se aprecia en la
+reducción de falsos positivos: el N1 genera 300 falsos positivos sobre
+el corpus completo (900 instancias), mientras que el N2 los reduce a
+solo 3 sobre el subconjunto de <em>test</em> (303 instancias) (Figura
+2). El coste es una ligera pérdida de cobertura —12 secretos reales mal
+clasificados, todos correspondientes a credenciales hardcodeadas en
+ficheros de <em>test</em>, el caso más ambiguo por diseño.</p>
+<figure>
+<img src="../results/figures/fig2_confusion_matrix.png"
+style="width:52.0%"
+alt="Matrices de confusión del N1 (corpus completo, 900 instancias) y N2 (conjunto de test, 30 %, 303 instancias). El N1 genera 300 falsos positivos; el N2 los reduce a 3, a costa de 12 falsos negativos en el caso ambiguo (secretos en ficheros de test)." />
+<figcaption aria-hidden="true">Matrices de confusión del N1 (corpus
+completo, 900 instancias) y N2 (conjunto de test, 30 %, 303 instancias).
+El N1 genera 300 falsos positivos; el N2 los reduce a 3, a costa de 12
+falsos negativos en el caso ambiguo (secretos en ficheros de
+test).</figcaption>
+</figure>
+<p>La validación cruzada de cinco pliegues sobre el N2 ofrece
+estimaciones estables: Precision = 0,978 ± 0,013, Recall = 0,951 ±
+0,014, F1 = 0,964 ± 0,010. La baja varianza entre pliegues indica que el
+modelo generaliza adecuadamente y que los resultados del <em>test</em>
+no son un artefacto de la partición.</p>
+<h2 id="importancia-de-características">Importancia de
+características</h2>
+<p>El análisis de importancias del Random Forest (Figura 3) revela que
+las dos señales más informativas son contextuales: si el fichero
+pertenece a un directorio de <em>test</em> (importancia = 0,405) y si la
+línea anterior contiene un comentario de ejemplo (0,270). Las
+características intrínsecas del token —entropía, ratios de caracteres—
+contribuyen significativamente pero de forma secundaria.</p>
+<figure>
+<img src="../results/figures/fig3_feature_importance.png"
+style="width:52.0%"
+alt="Importancia media (criterio Gini) de las 12 características más informativas del clasificador N2. Las dos primeras son señales de contexto; las siguientes son propiedades intrínsecas del token." />
+<figcaption aria-hidden="true">Importancia media (criterio Gini) de las
+12 características más informativas del clasificador N2. Las dos
+primeras son señales de contexto; las siguientes son propiedades
+intrínsecas del token.</figcaption>
+</figure>
+<p>Este resultado es coherente con la literatura: el contexto en que
+aparece una cadena es más informativo que su forma para distinguir
+credenciales reales de ejemplos o <em>placeholders</em>. Al mismo
+tiempo, constituye una limitación: en repositorios donde los ficheros de
+<em>test</em> no se nombran con el prefijo convencional, o donde los
+comentarios descriptivos son escasos, la señal contextual se debilita.
+Esta limitación se analiza en detalle en la sección de Conclusión.</p>
+<h2 id="validación-sobre-repositorios-reales">Validación sobre
+repositorios reales</h2>
+<p>Para verificar que el sistema no está sobreajustado al corpus propio,
+se ejecutó el pipeline sobre tres repositorios públicos reales en modo
+<em>filesystem</em> (Tabla 3).</p>
+<table style="width:100%;">
+<caption>Resultados de validación sobre repositorios reales públicos. GT
+= <em>ground truth</em> disponible cuando GitLeaks y TruffleHog
+coinciden en sus hallazgos.</caption>
+<colgroup>
+<col style="width: 12%" />
+<col style="width: 12%" />
+<col style="width: 15%" />
+<col style="width: 15%" />
+<col style="width: 15%" />
+<col style="width: 15%" />
+<col style="width: 15%" />
+</colgroup>
+<thead>
+<tr>
+<th style="text-align: left;">Repositorio</th>
+<th style="text-align: left;">Descripción</th>
+<th style="text-align: center;">GT disponible</th>
+<th style="text-align: center;">N1 hallazgos</th>
+<th style="text-align: center;">P</th>
+<th style="text-align: center;">R</th>
+<th style="text-align: center;">F1</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td
+style="text-align: left;"><code>trufflesecurity/test_keys</code></td>
+<td style="text-align: left;">Repo oficial TruffleHog con credenciales
+reales</td>
+<td style="text-align: center;">Sí (ambas herramientas coinciden)</td>
+<td style="text-align: center;">2</td>
+<td style="text-align: center;"><strong>1,00</strong></td>
+<td style="text-align: center;"><strong>1,00</strong></td>
+<td style="text-align: center;"><strong>1,00</strong></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>Yelp/detect-secrets</code>
+testdata</td>
+<td style="text-align: left;">Fixtures de test con claves de
+ejemplo</td>
+<td style="text-align: center;">No (herramientas discrepan)</td>
+<td style="text-align: center;">9</td>
+<td style="text-align: center;">—</td>
+<td style="text-align: center;">—</td>
+<td style="text-align: center;">—</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>awslabs/git-secrets</code></td>
+<td style="text-align: left;">Herramienta de seguridad (esperamos 0
+FP)</td>
+<td style="text-align: center;">No</td>
+<td style="text-align: center;">2</td>
+<td style="text-align: center;">—</td>
+<td style="text-align: center;">—</td>
+<td style="text-align: center;">—</td>
+</tr>
+</tbody>
+</table>
+<p>En <code>trufflesecurity/test_keys</code>, el único repositorio con
+<em>ground truth</em> inequívoco (ambas herramientas de referencia
+detectan los mismos secretos), el N1 logra Precision = 1,00 y Recall =
+1,00 sobre los secretos de alta confianza: detecta la clave AWS Access
+Key ID y la clave privada OpenSSH sin emitir ninguna falsa alarma. Los
+dos secretos no detectados por el N1 son una credencial AWS en formato
+de fichero de configuración sin comillas (el patrón actual requiere
+valor entre comillas) y una URL de autenticación básica
+<code>http://user:pass@host</code> (tipo no cubierto por el catálogo
+actual).</p>
+<p>En <code>Yelp/detect-secrets</code>, el N1 ignora correctamente la
+clave <code>AKIAIOSFODNN7EXAMPLE</code> —la clave de ejemplo canónica de
+AWS, documentada como no válida en toda la literatura— gracias al filtro
+de <em>placeholders</em>. Sin embargo, detecta
+<code>AKIATESTTESTTESTTEST</code>, un valor de <em>test</em> sin el
+sufijo <code>EXAMPLE</code>, que GitLeaks también reporta. Ambas
+herramientas coinciden en este hallazgo, lo que sugiere que la cadena
+está genuinamente en una zona gris.</p>
+<h1 id="conclusión">Conclusión</h1>
+<h2 id="aprendizaje-generado">Aprendizaje generado</h2>
+<p>El trabajo ha demostrado que es posible construir un detector de
+secretos con mejor equilibrio precisión-cobertura que las herramientas
+de referencia del sector, utilizando exclusivamente recursos
+computacionales modestos (CPU sin GPU) y técnicas de aprendizaje
+automático clásicas, sin necesidad de modelos de lenguaje de gran escala
+ni APIs externas. El aprendizaje técnico más relevante es que <strong>el
+contexto supera al contenido</strong>: las señales más informativas no
+son propiedades del token candidato sino del entorno en que aparece —el
+tipo de fichero y los comentarios circundantes.</p>
+<p>Desde el punto de vista metodológico, el proceso de diseño del corpus
+puso de manifiesto una trampa habitual en evaluación: un corpus
+demasiado fácil produce métricas perfectas que carecen de valor,
+mientras que uno demasiado difícil produce métricas tan bajas que
+tampoco son informativamente útiles. El equilibrio requiere modelar
+explícitamente los casos difíciles del dominio real.</p>
+<h2 id="expectativa-inicial-versus-resultados-reales">Expectativa
+inicial versus resultados reales</h2>
+<p>El diseño original preveía tres niveles: el N1 (regex + entropía), un
+N2 basado en CodeBERT ajustado (<em>fine-tuned</em>) sobre
+FPSecretBench, y opcionalmente un N3 con Qwen 2.5 Coder 7B como
+validador contextual local. Los resultados obtenidos con Random Forest
+sobre características manuales son competitivos con lo que la literatura
+reporta para encoders ajustados en conjuntos de datos similares, lo que
+sugiere que la ventaja del N2 sobre el N1 se debe principalmente a las
+características contextuales diseñadas —no al modelo en sí. La hipótesis
+de que un encoder de código aportaría mejoras sustanciales sobre un
+clasificador clásico bien diseñado merece ser verificada con datos
+reales de mayor escala.</p>
+<h2 id="mayores-retos">Mayores retos</h2>
+<p>El principal obstáculo técnico fue la indisponibilidad de
+SecretBench, que condicionó toda la estrategia de evaluación. El corpus
+propio, aunque diseñado con cuidado, no puede replicar la variedad de
+contextos de 818 repositorios reales. El segundo reto fue el diseño del
+corpus para evitar la separabilidad trivial: las dos primeras versiones
+producían resultados que, aunque numéricamente atractivos, no tenían
+valor experimental.</p>
+<h2 id="trabajo-futuro">Trabajo futuro</h2>
+<p>Tres líneas de extensión resultan naturales. La primera y más urgente
+es la evaluación sobre SecretBench/FPSecretBench cuando el acceso esté
+disponible: los resultados actuales necesitan validación sobre datos
+reales de mayor escala para confirmar su generalización. La segunda es
+sustituir el Random Forest por CodeBERT (<em>fine-tuned</em>) sobre las
+características contextuales extraídas, lo que permitiría comparar
+directamente la ventaja de un encoder de código frente a características
+manuales. La tercera es añadir al catálogo los tipos de secreto no
+cubiertos detectados durante la validación real: credenciales en formato
+de fichero de configuración sin comillas y URLs con autenticación
+<em>basic</em>.</p>
+<h2 id="limitaciones-del-trabajo">Limitaciones del trabajo</h2>
+<p>Los resultados presentados son válidos bajo las siguientes
+condiciones, que el lector debe considerar:</p>
+<ul>
+<li>El corpus de evaluación es sintético. Aunque diseñado con cuidado,
+no garantiza la distribución de tipos de secreto y falsos positivos que
+se encontraría en producción real a escala.</li>
+<li>Las dos características más informativas del N2
+(<code>ctx_in_test_file</code>, <code>ctx_sample_comment</code>)
+dependen de convenciones de nomenclatura y comentarios que no son
+universales. En proyectos que no siguen estas convenciones, el
+rendimiento puede degradarse.</li>
+<li>La comparativa con GitLeaks y TruffleHog en modo <em>filesystem</em>
+no refleja su caso de uso habitual, que incluye análisis del historial
+git. En ese modo, ambas herramientas pueden detectar secretos ya
+eliminados del árbol de trabajo, capacidad que el sistema actual no
+tiene.</li>
+<li>El sistema no valida si una credencial detectada sigue activa, lo
+que puede generar ruido operativo en repositorios con rotación frecuente
+de credenciales.</li>
+</ul>
+<div class="pagebreak">
+
+</div>
+<h1 class="unnumbered" id="bibliografía">Bibliografía</h1>
+<div id="refs" class="references csl-bib-body hanging-indent"
+data-entry-spacing="0" data-line-spacing="2" role="list">
+<div id="ref-basak2023" class="csl-entry" role="listitem">
+Basak, S. K., Neil, L., Reaves, B., &amp; Williams, L. (2023).
+SecretBench: A Dataset of Software Secrets. <em>2023 IEEE/ACM 20th
+International Conference on Mining Software Repositories (MSR)</em>. <a
+href="https://arxiv.org/abs/2303.06729">https://arxiv.org/abs/2303.06729</a>
+</div>
+<div id="ref-breiman2001" class="csl-entry" role="listitem">
+Breiman, L. (2001). Random Forests. <em>Machine Learning</em>,
+<em>45</em>(1), 5-32.
+</div>
+<div id="ref-feng2020" class="csl-entry" role="listitem">
+Feng, Z., Guo, D., Tang, D., Duan, N., Feng, X., Gong, M., Shou, L.,
+Qin, B., Liu, T., Jiang, D., &amp; Zhou, M. (2020). CodeBERT: A
+Pre-Trained Model for Programming and Natural Languages. <em>Findings of
+the Association for Computational Linguistics: EMNLP 2020</em>.
+</div>
+<div id="ref-gitguardian2024" class="csl-entry" role="listitem">
+GitGuardian. (2024). <em>The State of Secrets Sprawl 2024</em>.
+GitGuardian. <a
+href="https://www.gitguardian.com/state-of-secrets-sprawl-report-2024">https://www.gitguardian.com/state-of-secrets-sprawl-report-2024</a>
+</div>
+<div id="ref-ibm2024" class="csl-entry" role="listitem">
+IBM Security. (2024). <em>Cost of a Data Breach Report 2024</em>. IBM
+Corporation.
+</div>
+<div id="ref-jimenez2026m6" class="csl-entry" role="listitem">
+Jiménez Ormad, R. (2026). <em>Detector de secretos en repositorios Git:
+Módulo 6 Tarea 2</em>. <a
+href="https://github.com/Ruben1386/secret-scanner-master-m6-">https://github.com/Ruben1386/secret-scanner-master-m6-</a>
+</div>
+<div id="ref-gitleaks" class="csl-entry" role="listitem">
+Leijssen, Z., &amp; Gitleaks Contributors. (2024). <em>Gitleaks: Protect
+and Discover Secrets Using Gitleaks</em>. <a
+href="https://github.com/gitleaks/gitleaks">https://github.com/gitleaks/gitleaks</a>
+</div>
+<div id="ref-nist2022" class="csl-entry" role="listitem">
+NIST. (2022). <em>Secure Software Development Framework (SSDF) Version
+1.1: Recommendations for Mitigating the Risk of Software
+Vulnerabilities</em> (NIST Special Publication 800-218). National
+Institute of Standards; Technology.
+</div>
+<div id="ref-rahman2025" class="csl-entry" role="listitem">
+Rahman, M. N., Ahmed, S., Wahab, Z., Sohan, S. M., &amp; Shahriyar, R.
+(2025). Secret Breach Detection in Source Code with Large Language
+Models. <em>arXiv preprint arXiv:2504.18784</em>.
+</div>
+<div id="ref-saha2020" class="csl-entry" role="listitem">
+Saha, A., Denning, T., Srikumar, V., &amp; Kasera, S. K. (2020). Secrets
+in Source Code: Reducing False Positives Using Machine Learning.
+<em>2020 International Conference on COMmunication Systems &amp;
+NETworks (COMSNETS)</em>, 168-175.
+</div>
+<div id="ref-shannon1948" class="csl-entry" role="listitem">
+Shannon, C. E. (1948). A Mathematical Theory of Communication. <em>Bell
+System Technical Journal</em>, <em>27</em>(3), 379-423.
+</div>
+<div id="ref-trufflehog" class="csl-entry" role="listitem">
+Trufflesecurity. (2024). <em>TruffleHog: Find, Verify, and Analyze
+Leaked Credentials</em>. <a
+href="https://github.com/trufflesecurity/trufflehog">https://github.com/trufflesecurity/trufflehog</a>
+</div>
+</div>
+<div class="pagebreak">
+
+</div>
+<h1 class="unnumbered" id="anexos">Anexos</h1>
+<h2 class="unnumbered"
+id="anexo-a-estructura-del-repositorio-de-código">Anexo A — Estructura
+del repositorio de código</h2>
+<pre><code>tfm/
+├── data/
+│   ├── corpus/              # Corpus propio (900 instancias + ground_truth.json)
+│   └── real_repos/          # Repositorios reales clonados para validación
+├── src/
+│   ├── corpus_generator.py  # Generador de corpus reproducible (--seed 42)
+│   ├── tier1_baseline.py    # Detector N1: regex + entropía + extracción features
+│   ├── tier2_classifier.py  # Clasificador N2: Random Forest
+│   ├── evaluate_tools.py    # Comparativa vs GitLeaks y TruffleHog
+│   ├── validate_real_repos.py # Validación sobre repos reales
+│   └── generate_figures.py  # Generación de figuras para el documento
+├── results/
+│   ├── tier1_metrics.json   # Métricas del N1 sobre corpus completo
+│   ├── tier2_metrics.json   # Métricas del N2 (CV + held-out)
+│   ├── comparison_table.json # Tabla comparativa 4 sistemas
+│   ├── real_world_validation.json # Resultados validación real
+│   ├── tier2_model.joblib   # Modelo N2 serializado
+│   └── figures/             # Figuras PNG 300 dpi para el documento
+├── tools/
+│   ├── gitleaks             # Binario GitLeaks v8.30
+│   └── trufflehog           # Binario TruffleHog v3.96
+└── doc/
+    └── tfm_documento.md     # Fuente de este documento</code></pre>
+<div class="pagebreak">
+
+</div>
+<h2 class="unnumbered"
+id="anexo-b-catálogo-de-patrones-del-nivel-1">Anexo B — Catálogo de
+patrones del Nivel 1</h2>
+<table>
+<caption>Catálogo completo de patrones del Nivel 1.</caption>
+<colgroup>
+<col style="width: 38%" />
+<col style="width: 30%" />
+<col style="width: 30%" />
+</colgroup>
+<thead>
+<tr>
+<th style="text-align: center;">#</th>
+<th style="text-align: left;">Tipo de secreto</th>
+<th style="text-align: left;">Ejemplo de formato detectado</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: center;">1</td>
+<td style="text-align: left;">AWS Access Key ID</td>
+<td style="text-align: left;"><code>AKIA[A-Z0-9]{16}</code></td>
+</tr>
+<tr>
+<td style="text-align: center;">2</td>
+<td style="text-align: left;">AWS Secret Access Key</td>
+<td
+style="text-align: left;"><code>aws_secret_access_key = "..."</code></td>
+</tr>
+<tr>
+<td style="text-align: center;">3</td>
+<td style="text-align: left;">GitHub PAT</td>
+<td style="text-align: left;"><code>ghp_[A-Za-z0-9]{36}</code></td>
+</tr>
+<tr>
+<td style="text-align: center;">4</td>
+<td style="text-align: left;">GitHub OAuth Token</td>
+<td style="text-align: left;"><code>gho_[A-Za-z0-9]{36}</code></td>
+</tr>
+<tr>
+<td style="text-align: center;">5</td>
+<td style="text-align: left;">GitHub App Token</td>
+<td style="text-align: left;"><code>ghu_/ghs_[A-Za-z0-9]{36}</code></td>
+</tr>
+<tr>
+<td style="text-align: center;">6</td>
+<td style="text-align: left;">GitHub Fine-grained PAT</td>
+<td
+style="text-align: left;"><code>github_pat_[A-Za-z0-9_]{82}</code></td>
+</tr>
+<tr>
+<td style="text-align: center;">7</td>
+<td style="text-align: left;">Google API Key</td>
+<td style="text-align: left;"><code>AIza[A-Za-z0-9_-]{35}</code></td>
+</tr>
+<tr>
+<td style="text-align: center;">8</td>
+<td style="text-align: left;">Slack Token</td>
+<td
+style="text-align: left;"><code>xox[baprs]-[A-Za-z0-9-]{10,}</code></td>
+</tr>
+<tr>
+<td style="text-align: center;">9</td>
+<td style="text-align: left;">Stripe Live Secret Key</td>
+<td style="text-align: left;"><code>sk_live_[A-Za-z0-9]{24,}</code></td>
+</tr>
+<tr>
+<td style="text-align: center;">10</td>
+<td style="text-align: left;">Stripe Test Secret Key</td>
+<td style="text-align: left;"><code>sk_test_[A-Za-z0-9]{24,}</code></td>
+</tr>
+<tr>
+<td style="text-align: center;">11</td>
+<td style="text-align: left;">OpenAI API Key</td>
+<td style="text-align: left;"><code>sk-[A-Za-z0-9_-]{20,}</code></td>
+</tr>
+<tr>
+<td style="text-align: center;">12</td>
+<td style="text-align: left;">Anthropic API Key</td>
+<td
+style="text-align: left;"><code>sk-ant-api03-[A-Za-z0-9_-]{20,}</code></td>
+</tr>
+<tr>
+<td style="text-align: center;">13</td>
+<td style="text-align: left;">JWT Token</td>
+<td style="text-align: left;"><code>eyJ...eyJ...&lt;sig&gt;</code></td>
+</tr>
+<tr>
+<td style="text-align: center;">14</td>
+<td style="text-align: left;">Clave privada (RSA/SSH/EC/PGP)</td>
+<td
+style="text-align: left;"><code>-----BEGIN ... PRIVATE KEY-----</code></td>
+</tr>
+<tr>
+<td style="text-align: center;">15</td>
+<td style="text-align: left;">Asignación genérica de contraseña</td>
+<td style="text-align: left;"><code>password = "..."</code></td>
+</tr>
+<tr>
+<td style="text-align: center;">16</td>
+<td style="text-align: left;">Asignación genérica de API key</td>
+<td style="text-align: left;"><code>api_key = "..."</code></td>
+</tr>
+<tr>
+<td style="text-align: center;">17</td>
+<td style="text-align: left;">Asignación genérica de secreto</td>
+<td style="text-align: left;"><code>secret = "..."</code></td>
+</tr>
+<tr>
+<td style="text-align: center;">18</td>
+<td style="text-align: left;">Asignación genérica de token</td>
+<td style="text-align: left;"><code>access_token = "..."</code></td>
+</tr>
+<tr>
+<td style="text-align: center;">19</td>
+<td style="text-align: left;">Cadena de conexión a base de datos</td>
+<td
+style="text-align: left;"><code>postgresql://user:pass@host</code></td>
+</tr>
+<tr>
+<td style="text-align: center;">20</td>
+<td style="text-align: left;">Entropía Shannon ≥ 4,5</td>
+<td style="text-align: left;">Cualquier token ≥ 20 chars entre
+comillas</td>
+</tr>
+</tbody>
+</table>
+<h2 class="unnumbered"
+id="anexo-c-protocolo-de-reproducción-de-resultados">Anexo C — Protocolo
+de reproducción de resultados</h2>
+<div class="sourceCode" id="cb2"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 1. Clonar el repositorio</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> clone https://github.com/Ruben1386/secret-scanner-tfm.git</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="bu">cd</span> secret-scanner-tfm</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="co"># 2. Crear entorno virtual</span></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a><span class="ex">python3.12</span> <span class="at">-m</span> venv .venv <span class="kw">&amp;&amp;</span> <span class="bu">source</span> .venv/bin/activate</span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a><span class="co"># 3. Instalar dependencias</span></span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a><span class="ex">pip</span> install pandas numpy scikit-learn matplotlib seaborn joblib</span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a><span class="co"># 4. Generar corpus (reproducible)</span></span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a><span class="ex">python</span> src/corpus_generator.py <span class="at">--out</span> data/corpus <span class="at">--seed</span> 42</span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a><span class="co"># 5. Ejecutar Nivel 1</span></span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a><span class="ex">python</span> src/tier1_baseline.py <span class="at">--corpus</span> data/corpus <span class="at">--out</span> results/</span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a><span class="co"># 6. Entrenar y evaluar Nivel 2</span></span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a><span class="ex">python</span> src/tier2_classifier.py <span class="at">--candidates</span> results/tier1_candidates.jsonl <span class="at">--out</span> results/</span>
+<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a><span class="co"># 7. Generar figuras</span></span>
+<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a><span class="ex">python</span> src/generate_figures.py <span class="at">--results</span> results/ <span class="at">--out</span> results/figures/</span></code></pre></div>
+<p><em>Tiempo estimado de ejecución completa: &lt; 2 minutos en CPU de 4
+núcleos.</em></p>
+</body>
+</html>

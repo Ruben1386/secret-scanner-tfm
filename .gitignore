@@ -1,0 +1,16 @@
+.venv/
+__pycache__/
+*.pyc
+*.pyo
+*.joblib
+tools/
+data/real_repos/
+*.DS_Store
+
+# Corpus generado (reproducible con: python src/corpus_generator.py --seed 42)
+# Excluido del repo porque contiene credenciales sintéticas con formato
+# realista (Stripe, Slack, AWS...) que el escaneo de secretos de GitHub
+# bloquea por Push Protection. Son valores falsos generados por el script,
+# no secretos reales, pero el propósito del corpus es precisamente parecerlo.
+data/corpus/
+results/tier1_candidates.jsonl

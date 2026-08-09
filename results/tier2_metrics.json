@@ -1,0 +1,159 @@
+{
+  "dataset": {
+    "total": 1007,
+    "secrets": 551,
+    "false_positives": 456
+  },
+  "cv_5fold": {
+    "precision": [
+      0.9778,
+      0.0125
+    ],
+    "recall": [
+      0.951,
+      0.0135
+    ],
+    "f1": [
+      0.9641,
+      0.0098
+    ]
+  },
+  "tier1_on_testset": {
+    "precision": 0.5479,
+    "recall": 1.0,
+    "f1": 0.7079
+  },
+  "tier2_on_testset": {
+    "precision": 0.9809,
+    "recall": 0.9277,
+    "f1": 0.9536
+  },
+  "confusion_matrix_testset": [
+    [
+      134,
+      3
+    ],
+    [
+      12,
+      154
+    ]
+  ],
+  "feature_importances": [
+    [
+      "ctx_in_test_file",
+      0.4054
+    ],
+    [
+      "ctx_sample_comment",
+      0.27002
+    ],
+    [
+      "entropy",
+      0.04721
+    ],
+    [
+      "ratio_digit",
+      0.03718
+    ],
+    [
+      "charset_diversity",
+      0.0336
+    ],
+    [
+      "ratio_lower",
+      0.03057
+    ],
+    [
+      "ratio_upper",
+      0.03036
+    ],
+    [
+      "ctx_has_fp_word",
+      0.02508
+    ],
+    [
+      "ratio_special",
+      0.02126
+    ],
+    [
+      "length",
+      0.02001
+    ],
+    [
+      "n_segments",
+      0.01946
+    ],
+    [
+      "rule_Generic Secret Assignment",
+      0.01642
+    ],
+    [
+      "rule_High-Entropy String",
+      0.01094
+    ],
+    [
+      "ctx_has_secret_word",
+      0.00798
+    ],
+    [
+      "detected_by_pattern",
+      0.0075
+    ],
+    [
+      "has_known_prefix",
+      0.0054
+    ],
+    [
+      "rule_OpenAI API Key",
+      0.0025
+    ],
+    [
+      "rule_Generic Token Assignment",
+      0.00207
+    ],
+    [
+      "rule_GitHub Personal Access Token",
+      0.00171
+    ],
+    [
+      "rule_Generic API Key Assignment",
+      0.00124
+    ],
+    [
+      "rule_Google API Key",
+      0.00104
+    ],
+    [
+      "rule_Stripe Live Secret Key",
+      0.00088
+    ],
+    [
+      "rule_Generic Password Assignment",
+      0.00084
+    ],
+    [
+      "rule_AWS Access Key ID",
+      0.00072
+    ],
+    [
+      "rule_Slack Token",
+      0.0006
+    ],
+    [
+      "rule_JWT Token",
+      4e-05
+    ],
+    [
+      "is_hex",
+      0.0
+    ],
+    [
+      "is_uuid_shape",
+      0.0
+    ],
+    [
+      "ctx_has_placeholder",
+      0.0
+    ]
+  ]
+}

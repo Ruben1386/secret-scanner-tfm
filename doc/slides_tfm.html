@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TFM — Detección Híbrida de Secretos en Código y Pipelines</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@4.6.1/dist/reset.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@4.6.1/dist/reveal.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@4.6.1/dist/theme/white.css">
+<style>
+  :root {
+    --navy:   #0d1b4b;
+    --blue:   #1a3a8f;
+    --sky:    #4a7fd4;
+    --light:  #e8eef8;
+    --green:  #1a7a4a;
+    --red:    #b02020;
+    --grey:   #5a6a8a;
+    --white:  #ffffff;
+  }
+
+  .reveal { font-family: 'Segoe UI', Arial, sans-serif; }
+  .reveal h1, .reveal h2, .reveal h3 {
+    font-family: 'Segoe UI', Arial, sans-serif;
+    color: var(--navy);
+    text-transform: none;
+    letter-spacing: -0.5px;
+  }
+  .reveal h2 { font-size: 1.6em; border-bottom: 3px solid var(--navy); padding-bottom: 10px; margin-bottom: 0.5em; }
+  .reveal h3 { font-size: 1.1em; color: var(--blue); margin: 0.3em 0; }
+  .reveal p, .reveal li { font-size: 0.78em; line-height: 1.55; color: #1a1a2e; }
+  .reveal ul { margin: 0.3em 0; padding-left: 1.2em; }
+  .reveal li { margin: 0.25em 0; }
+  .reveal section { text-align: left; }
+
+  /* Portada */
+  .cover { text-align: center !important; }
+  .cover h1 { font-size: 1.5em; color: var(--navy); border: none; margin-bottom: 0.2em; }
+  .cover .subtitle { font-size: 0.9em; color: var(--blue); font-weight: 600; margin: 0.5em 0; }
+  .cover .author { font-size: 0.78em; color: var(--grey); margin-top: 1.2em; }
+  .cover .date   { font-size: 0.72em; color: var(--grey); }
+  .cover .master { font-size: 0.68em; color: var(--grey); font-style: italic; }
+  .cover-bar { width: 80%; height: 4px; background: linear-gradient(90deg, var(--navy), var(--sky)); margin: 1em auto; border-radius: 2px; }
+
+  /* Cajas de énfasis */
+  .box { border-radius: 8px; padding: 14px 18px; margin: 0.5em 0; }
+  .box-navy { background: var(--navy); color: white; }
+  .box-navy h3 { color: #a0c4ff !important; margin: 0 0 6px 0; }
+  .box-navy p, .box-navy li { color: #e8f0fe; font-size: 0.74em; }
+  .box-light { background: var(--light); border-left: 4px solid var(--navy); }
+  .box-green { background: #e6f4ec; border-left: 4px solid var(--green); }
+  .box-red   { background: #fdecea; border-left: 4px solid var(--red); }
+
+  /* Métrica grande */
+  .metric-grid { display: flex; gap: 16px; margin: 0.6em 0; flex-wrap: wrap; }
+  .metric { flex: 1; min-width: 130px; text-align: center; background: var(--navy); color: white; border-radius: 10px; padding: 14px 8px; }
+  .metric .num { font-size: 2em; font-weight: 700; color: #7dd3fc; line-height: 1; }
+  .metric .lbl { font-size: 0.62em; color: #c8dcff; margin-top: 4px; line-height: 1.3; }
+  .metric.good .num { color: #6ee7b7; }
+  .metric.warn .num { color: #fcd34d; }
+  .metric.bad  .num { color: #f87171; }
+
+  /* Tabla de comparativa */
+  .comp-table { width: 100%; border-collapse: collapse; font-size: 0.72em; margin: 0.6em 0; }
+  .comp-table thead tr { background: var(--navy); color: white; }
+  .comp-table th { padding: 8px 10px; text-align: left; }
+  .comp-table td { padding: 7px 10px; border-bottom: 1px solid #c8d4e8; }
+  .comp-table tr:nth-child(even) { background: var(--light); }
+  .comp-table .best { font-weight: 700; color: var(--green); }
+  .comp-table .ours { background: #ddf0e8 !important; }
+
+  /* Pipeline diagrama */
+  .pipeline { display: flex; align-items: center; gap: 0; margin: 0.8em 0; }
+  .pipe-box { flex: 1; text-align: center; padding: 12px 8px; border-radius: 8px; font-size: 0.68em; }
+  .pipe-box .title { font-weight: 700; font-size: 1.1em; margin-bottom: 4px; }
+  .pipe-box .sub { color: inherit; opacity: 0.85; }
+  .pipe-box.n0 { background: #f0f4fb; border: 2px solid #c8d4e8; color: var(--grey); }
+  .pipe-box.n1 { background: #1a3a8f; color: white; }
+  .pipe-box.n2 { background: #0d5e3a; color: white; }
+  .pipe-box.out { background: #0d1b4b; color: white; }
+  .arrow { font-size: 1.4em; color: var(--grey); padding: 0 4px; }
+
+  /* Limitaciones / trabajo futuro */
+  .two-col { display: flex; gap: 20px; margin: 0.5em 0; }
+  .two-col > div { flex: 1; }
+
+  /* Número de slide */
+  .reveal .slide-number { font-size: 0.55em; }
+
+  /* Chip */
+  .chip { display: inline-block; background: var(--navy); color: white; border-radius: 20px; padding: 3px 12px; font-size: 0.65em; margin: 2px; }
+  .chip.green { background: var(--green); }
+  .chip.sky   { background: var(--sky); }
+
+  /* Highlight inline */
+  .hl  { color: var(--blue); font-weight: 700; }
+  .hlg { color: var(--green); font-weight: 700; }
+  .hlr { color: var(--red); font-weight: 700; }
+
+  /* Cita */
+  .cite { font-size: 0.6em; color: var(--grey); font-style: italic; }
+
+  /* Imagen de figura */
+  .fig-wrap { text-align: center; margin: 0.4em 0; }
+  .fig-wrap img { max-height: 310px; border: 1px solid #c8d4e8; border-radius: 6px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+  .fig-cap { font-size: 0.6em; color: var(--grey); font-style: italic; margin-top: 6px; }
+</style>
+</head>
+<body>
+<div class="reveal">
+<div class="slides">
+
+<!-- ========================================================
+     PORTADA (no cuenta)
+     ======================================================== -->
+<section class="cover">
+  <div class="cover-bar"></div>
+  <h1>Detección Híbrida de Secretos<br>en Código y Pipelines</h1>
+  <p class="subtitle">mediante Reglas, Entropía y Aprendizaje Automático</p>
+  <div class="cover-bar"></div>
+  <p class="author"><strong>Rubén Jiménez Ormad</strong></p>
+  <p class="master">Máster en IA Aplicada a la Ciberseguridad · Módulo 9 — TFM</p>
+  <p class="date">Agosto de 2026 &nbsp;·&nbsp; Tutor: Fran Ramírez (Telefónica Innovation)</p>
+</section>
+
+<!-- ========================================================
+     SLIDE 1 — Problema y motivación
+     ======================================================== -->
+<section>
+  <h2>1. Problema y motivación</h2>
+
+  <div class="metric-grid">
+    <div class="metric warn">
+      <div class="num">+12,8M</div>
+      <div class="lbl">secretos expuestos en GitHub<br>en 2023 (+28 % interanual)</div>
+    </div>
+    <div class="metric warn">
+      <div class="num">15.084</div>
+      <div class="lbl">credenciales reales verificadas<br>manualmente en 818 repos</div>
+    </div>
+    <div class="metric bad">
+      <div class="num">$4,81M</div>
+      <div class="lbl">coste medio de brecha<br>por credencial comprometida</div>
+    </div>
+  </div>
+
+  <div class="box box-light" style="margin-top:0.7em">
+    <h3>¿Por qué ocurre?</h3>
+    <ul>
+      <li>Presión de plazos → credenciales hardcodeadas en el código</li>
+      <li>Una vez en el historial git, <strong>la credencial es irrecuperable sin rotación</strong></li>
+      <li>Las herramientas actuales generan demasiadas falsas alertas → los equipos las ignoran</li>
+    </ul>
+  </div>
+
+  <p class="cite">Basak et al. (2023) · IBM Security (2024) · GitGuardian (2024)</p>
+</section>
+
+<!-- ========================================================
+     SLIDE 2 — Estado del arte
+     ======================================================== -->
+<section>
+  <h2>2. Estado del arte y su limitación principal</h2>
+
+  <table class="comp-table">
+    <thead><tr><th>Enfoque</th><th>Herramienta típica</th><th>Ventaja</th><th>Limitación</th></tr></thead>
+    <tbody>
+      <tr>
+        <td><strong>Patrones (regex)</strong></td>
+        <td>GitLeaks, TruffleHog</td>
+        <td>Rápido, determinista</td>
+        <td class="hlr">Muchos falsos positivos en ficheros de test y docs</td>
+      </tr>
+      <tr>
+        <td><strong>Entropía de Shannon</strong></td>
+        <td>TruffleHog, detect-secrets</td>
+        <td>Detecta formatos desconocidos</td>
+        <td class="hlr">UUIDs, hashes, Base64 también tienen alta entropía</td>
+      </tr>
+      <tr>
+        <td><strong>LLM / encoder</strong></td>
+        <td>Investigación reciente</td>
+        <td>Contexto semántico, F1 &gt; 0,95</td>
+        <td class="hlr">Enviar secretos a una API externa introduce el mismo riesgo</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="box box-navy" style="margin-top:0.6em">
+    <p><strong>Brecha identificada:</strong> ninguna herramienta combina cobertura alta + precisión alta + clasificación <em>local</em> sin dependencia de APIs externas.</p>
+  </div>
+</section>
+
+<!-- ========================================================
+     SLIDE 3 — Solución propuesta
+     ======================================================== -->
+<section>
+  <h2>3. Solución propuesta</h2>
+
+  <div class="pipeline">
+    <div class="pipe-box n0">
+      <div class="title">📁 Código</div>
+      <div class="sub">ficheros Python, JS,<br>YAML, .env, PEM…</div>
+    </div>
+    <div class="arrow">→</div>
+    <div class="pipe-box n1">
+      <div class="title">N1 — Detector base</div>
+      <div class="sub">19 regex de proveedor<br>+ Entropía Shannon ≥ 4,5<br>+ 17 features de contexto</div>
+    </div>
+    <div class="arrow">→</div>
+    <div class="pipe-box n2">
+      <div class="title">N2 — Clasificador</div>
+      <div class="sub">Random Forest<br>sobre features contextuales<br>→ elimina falsos positivos</div>
+    </div>
+    <div class="arrow">→</div>
+    <div class="pipe-box out">
+      <div class="title">⚠ Alertas</div>
+      <div class="sub">Solo secretos<br>reales confirmados</div>
+    </div>
+  </div>
+
+  <div class="two-col" style="margin-top:0.6em">
+    <div class="box box-green">
+      <h3>¿Qué lo diferencia?</h3>
+      <ul>
+        <li>Clasificador <strong>local</strong>: sin API externa (sin nueva superficie de ataque)</li>
+        <li>Contexto del fichero como señal: ¿está en un directorio de <em>test</em>? ¿hay un comentario de ejemplo?</li>
+        <li>Integrable como <em>pre-commit hook</em> o en CI/CD</li>
+      </ul>
+    </div>
+    <div class="box box-light">
+      <h3>Stack técnico</h3>
+      <ul>
+        <li>Python 3.12 · scikit-learn</li>
+        <li>Random Forest (300 árboles)</li>
+        <li>Reproducible: <code>seed=42</code></li>
+        <li>Sin GPU · 15 GB RAM</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ========================================================
+     SLIDE 4 — Desarrollo y decisiones clave
+     ======================================================== -->
+<section>
+  <h2>4. Desarrollo y decisiones clave</h2>
+
+  <div class="box box-navy" style="margin-bottom:0.5em">
+    <h3>📦 Corpus propio (Plan B) — SecretBench inaccesible</h3>
+    <p>900 instancias etiquetadas · 400 secretos reales · 500 falsos positivos difíciles<br>
+    Diseño anti-trivial: FP con formato válido de proveedor, pero en contexto de <em>test</em></p>
+  </div>
+
+  <div class="two-col">
+    <div>
+      <h3>3 iteraciones del corpus</h3>
+      <ul>
+        <li><span class="hlr">v1:</span> F1 = 1,00 → artefacto de construcción</li>
+        <li><span class="hlr">v2:</span> F1 = 0,62 → demasiado difícil, Recall destruido</li>
+        <li><span class="hlg">v3:</span> F1 = 0,95 → equilibrio honesto ✓</li>
+      </ul>
+    </div>
+    <div>
+      <h3>Bug crítico detectado</h3>
+      <ul>
+        <li>2 features añadidas al N1 no registradas en el N2</li>
+        <li>Clasificador <em>ciego</em> a las señales más importantes</li>
+        <li>F1 0,62 → 0,95 al corregirlo</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="box box-light" style="margin-top:0.5em">
+    <h3>Decisión: Random Forest en lugar de CodeBERT</h3>
+    <p>Hardware CPU-only sin GPU · Corpus &lt; 1.000 instancias · Convergencia en segundos · Interpretable mediante importancias · Generalización equivalente en el dominio</p>
+  </div>
+</section>
+
+<!-- ========================================================
+     SLIDE 5 — Resultados
+     ======================================================== -->
+<section>
+  <h2>5. Resultados</h2>
+
+  <table class="comp-table">
+    <thead><tr><th>Sistema</th><th style="text-align:center">Precision</th><th style="text-align:center">Recall</th><th style="text-align:center">F1-score</th></tr></thead>
+    <tbody>
+      <tr>
+        <td>TruffleHog v3.96</td>
+        <td style="text-align:center">0,48</td>
+        <td style="text-align:center">0,20</td>
+        <td style="text-align:center" class="hlr">0,28</td>
+      </tr>
+      <tr>
+        <td>GitLeaks v8.30</td>
+        <td style="text-align:center">0,65</td>
+        <td style="text-align:center">0,76</td>
+        <td style="text-align:center">0,70</td>
+      </tr>
+      <tr>
+        <td>N1 — Detector base (regex + entropía)</td>
+        <td style="text-align:center">0,57</td>
+        <td style="text-align:center" class="hlg"><strong>0,99</strong></td>
+        <td style="text-align:center">0,72</td>
+      </tr>
+      <tr class="ours">
+        <td><strong>N2 — N1 + Random Forest ★</strong></td>
+        <td style="text-align:center" class="best"><strong>0,98</strong></td>
+        <td style="text-align:center" class="best"><strong>0,93</strong></td>
+        <td style="text-align:center" class="best"><strong>0,95</strong></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="two-col" style="margin-top:0.5em">
+    <div>
+      <div class="metric-grid">
+        <div class="metric good">
+          <div class="num">+25pp</div>
+          <div class="lbl">mejora F1 vs GitLeaks<br>(0,70 → 0,95)</div>
+        </div>
+        <div class="metric good">
+          <div class="num">300→3</div>
+          <div class="lbl">falsos positivos<br>(N1 corpus completo → N2 test)</div>
+        </div>
+      </div>
+      <p class="cite" style="margin-top:6px">CV 5-fold: F1 = 0,964 ± 0,010</p>
+    </div>
+    <div>
+      <div class="box box-green">
+        <h3>Validación en repos reales</h3>
+        <p><code>trufflesecurity/test_keys</code><br>
+        <span class="hlg"><strong>P = 1,00 · R = 1,00 · F1 = 1,00</strong></span><br>
+        0 falsas alarmas en código de seguridad real</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ========================================================
+     SLIDE 6 — Conclusiones y trabajo futuro
+     ======================================================== -->
+<section>
+  <h2>6. Conclusiones y trabajo futuro</h2>
+
+  <div class="two-col">
+    <div>
+      <div class="box box-navy">
+        <h3>Lo aprendido</h3>
+        <ul>
+          <li>El <strong>contexto supera al contenido</strong>: ¿está en un fichero de test? es más informativo que la entropía del token</li>
+          <li>Un corpus bien diseñado es tan crítico como el modelo</li>
+          <li>La paridad entre módulos de extracción y clasificación es un punto de fallo frecuente</li>
+        </ul>
+      </div>
+    </div>
+    <div>
+      <div class="box box-red">
+        <h3>Limitaciones honestas</h3>
+        <ul>
+          <li>Corpus sintético: no replica la diversidad de SecretBench (97k instancias reales)</li>
+          <li>N2 depende de convenciones de nomenclatura de directorios</li>
+          <li>No detecta credenciales sin comillas ni URLs con <em>basic auth</em></li>
+          <li>No valida si la credencial sigue activa</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="box box-light" style="margin-top:0.5em">
+    <h3>Trabajo futuro</h3>
+    <span class="chip">① Evaluar con SecretBench real</span>
+    <span class="chip sky">② Fine-tuning CodeBERT sobre corpus real</span>
+    <span class="chip green">③ Ampliar catálogo: credenciales sin comillas + basic auth URLs</span>
+  </div>
+</section>
+
+</div><!-- /slides -->
+</div><!-- /reveal -->
+
+<script src="https://cdn.jsdelivr.net/npm/reveal.js@4.6.1/dist/reveal.js"></script>
+<script>
+  Reveal.initialize({
+    hash: true,
+    slideNumber: 'c/t',
+    progress: true,
+    controls: true,
+    center: false,
+    width: 1100,
+    height: 680,
+    margin: 0.06,
+    transition: 'slide',
+    transitionSpeed: 'fast',
+    plugins: []
+  });
+</script>
+</body>
+</html>
