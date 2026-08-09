@@ -1023,10 +1023,10 @@ href="https://github.com/trufflesecurity/trufflehog">https://github.com/truffles
 <h2 class="unnumbered"
 id="anexo-a-estructura-del-repositorio-de-código">Anexo A — Estructura
 del repositorio de código</h2>
-<pre><code>tfm/
-├── data/
-│   ├── corpus/              # Corpus propio (900 instancias + ground_truth.json)
-│   └── real_repos/          # Repositorios reales clonados para validación
+<p>Repositorio público: <a
+href="https://github.com/Ruben1386/secret-scanner-tfm"
+class="uri">https://github.com/Ruben1386/secret-scanner-tfm</a></p>
+<pre><code>secret-scanner-tfm/
 ├── src/
 │   ├── corpus_generator.py  # Generador de corpus reproducible (--seed 42)
 │   ├── tier1_baseline.py    # Detector N1: regex + entropía + extracción features
@@ -1039,13 +1039,17 @@ del repositorio de código</h2>
 │   ├── tier2_metrics.json   # Métricas del N2 (CV + held-out)
 │   ├── comparison_table.json # Tabla comparativa 4 sistemas
 │   ├── real_world_validation.json # Resultados validación real
-│   ├── tier2_model.joblib   # Modelo N2 serializado
 │   └── figures/             # Figuras PNG 300 dpi para el documento
-├── tools/
-│   ├── gitleaks             # Binario GitLeaks v8.30
-│   └── trufflehog           # Binario TruffleHog v3.96
-└── doc/
-    └── tfm_documento.md     # Fuente de este documento</code></pre>
+├── doc/                     # Este documento (pdf/html/md), slides y ficheros de soporte
+├── .gitignore
+└── README.md</code></pre>
+<p>Los ficheros generados por los scripts (<code>data/corpus/</code>,
+<code>results/tier1_candidates.jsonl</code>,
+<code>results/tier2_model.joblib</code>) no se versionan: se reproducen
+en segundos siguiendo el protocolo del Anexo C.
+<code>data/corpus/</code> en particular contiene credenciales sintéticas
+con formato realista que el escaneo de secretos de GitHub bloquea por
+<em>Push Protection</em>.</p>
 <div class="pagebreak">
 
 </div>

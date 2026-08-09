@@ -100,15 +100,8 @@ python src/evaluate_tools.py \
 
 ```
 secret-scanner-tfm/
-├── data/
-│   ├── corpus/                  # Corpus propio generado (seed=42)
-│   │   ├── file_NNN.txt         # Ficheros de producción (60 ficheros)
-│   │   ├── test_NNN.txt         # Ficheros de test (40 ficheros)
-│   │   └── ground_truth.json    # Etiquetas canónicas (900 instancias)
-│   └── real_repos/              # Repositorios reales clonados para validación
-│
 ├── src/
-│   ├── corpus_generator.py      # Generador de corpus reproducible
+│   ├── corpus_generator.py      # Generador de corpus reproducible (--seed 42)
 │   ├── tier1_baseline.py        # Detector N1: regex + entropía + features
 │   ├── tier2_classifier.py      # Clasificador N2: Random Forest
 │   ├── evaluate_tools.py        # Comparativa vs GitLeaks y TruffleHog
@@ -120,22 +113,30 @@ secret-scanner-tfm/
 │   ├── tier2_metrics.json       # Métricas N2 (CV 5-fold + held-out)
 │   ├── comparison_table.json    # Tabla comparativa 4 sistemas
 │   ├── real_world_validation.json # Resultados repos reales
-│   ├── tier1_candidates.jsonl   # Candidatos etiquetados (dataset N2)
-│   ├── tier2_model.joblib       # Modelo N2 serializado
 │   └── figures/
 │       ├── fig1_comparison_bar.png      # Comparativa P/R/F1
 │       ├── fig2_confusion_matrix.png    # Matrices de confusión N1 vs N2
 │       └── fig3_feature_importance.png  # Importancias Random Forest
 │
-├── tools/                       # Binarios GitLeaks y TruffleHog (no incluidos)
-│
 ├── doc/
-│   ├── tfm_documento.html       # Documento técnico completo
-│   ├── slides_tfm.html          # Presentación (6 slides, reveal.js)
-│   └── style.css                # Estilos del documento
+│   ├── tfm_documento.pdf        # Documento técnico (entregable principal)
+│   ├── tfm_documento.html       # Documento técnico en HTML
+│   ├── tfm_documento.md         # Fuente Markdown del documento
+│   ├── references.bib           # Bibliografía (BibTeX)
+│   ├── apa.csl                  # Estilo de citas APA (citeproc)
+│   ├── style.css                # Estilos del documento
+│   ├── slides_tfm.pdf           # Presentación en PDF (portada + 6 slides)
+│   ├── slides_tfm.html          # Presentación interactiva (reveal.js)
+│   └── fig1/2/3_*.png           # Copias de las figuras usadas en el documento
 │
+├── .gitignore
 └── README.md                    # Este fichero
 ```
+
+**No versionado** (se genera o se descarga localmente, ver [Ejecución](#ejecución--reproducción-completa-de-resultados) más abajo):
+- `data/corpus/` y `data/real_repos/` — el corpus se regenera con `corpus_generator.py --seed 42`; contiene credenciales sintéticas con formato realista que GitHub bloquea por *Push Protection*, así que no se sube al repositorio.
+- `results/tier1_candidates.jsonl` y `results/tier2_model.joblib` — se regeneran al ejecutar `tier1_baseline.py` y `tier2_classifier.py`.
+- `tools/gitleaks` y `tools/trufflehog` — binarios externos, descargar aparte solo si se quiere reproducir la comparativa (opcional, ver más abajo).
 
 ---
 

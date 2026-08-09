@@ -248,11 +248,10 @@ Los resultados presentados son válidos bajo las siguientes condiciones, que el 
 
 ## Anexo A — Estructura del repositorio de código {.unnumbered}
 
+Repositorio público: <https://github.com/Ruben1386/secret-scanner-tfm>
+
 ```
-tfm/
-├── data/
-│   ├── corpus/              # Corpus propio (900 instancias + ground_truth.json)
-│   └── real_repos/          # Repositorios reales clonados para validación
+secret-scanner-tfm/
 ├── src/
 │   ├── corpus_generator.py  # Generador de corpus reproducible (--seed 42)
 │   ├── tier1_baseline.py    # Detector N1: regex + entropía + extracción features
@@ -265,14 +264,13 @@ tfm/
 │   ├── tier2_metrics.json   # Métricas del N2 (CV + held-out)
 │   ├── comparison_table.json # Tabla comparativa 4 sistemas
 │   ├── real_world_validation.json # Resultados validación real
-│   ├── tier2_model.joblib   # Modelo N2 serializado
 │   └── figures/             # Figuras PNG 300 dpi para el documento
-├── tools/
-│   ├── gitleaks             # Binario GitLeaks v8.30
-│   └── trufflehog           # Binario TruffleHog v3.96
-└── doc/
-    └── tfm_documento.md     # Fuente de este documento
+├── doc/                     # Este documento (pdf/html/md), slides y ficheros de soporte
+├── .gitignore
+└── README.md
 ```
+
+Los ficheros generados por los scripts (`data/corpus/`, `results/tier1_candidates.jsonl`, `results/tier2_model.joblib`) no se versionan: se reproducen en segundos siguiendo el protocolo del Anexo C. `data/corpus/` en particular contiene credenciales sintéticas con formato realista que el escaneo de secretos de GitHub bloquea por *Push Protection*.
 
 <div class="pagebreak"></div>
 
