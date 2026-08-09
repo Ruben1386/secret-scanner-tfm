@@ -36,7 +36,6 @@ pandas>=2.0
 numpy>=1.26
 scikit-learn>=1.4
 matplotlib>=3.8
-seaborn>=0.13
 joblib>=1.3
 ```
 
@@ -55,7 +54,7 @@ source .venv/bin/activate        # Linux / macOS / WSL
 # .venv\Scripts\activate.bat     # Windows CMD
 
 # 3. Instalar dependencias
-pip install pandas numpy scikit-learn matplotlib seaborn joblib
+pip install pandas numpy scikit-learn matplotlib joblib
 ```
 
 ---
@@ -104,7 +103,7 @@ python src/evaluate_tools.py \
 
 ### Validación en repositorios reales (opcional)
 
-Reproduce la Tabla 3 del documento técnico. Clona los 3 repos públicos usados como referencia y ejecuta el script (rutas fijas, sin argumentos):
+Reproduce la Tabla 3 del documento técnico. **Requiere también los binarios de GitLeaks y TruffleHog en `tools/`** (los mismos de la sección anterior). Clona los 3 repos públicos usados como referencia y ejecuta el script (rutas fijas, sin argumentos):
 
 ```bash
 mkdir -p data/real_repos
@@ -152,6 +151,7 @@ secret-scanner-tfm/
 │   └── fig1/2/3_*.png           # Copias de las figuras usadas en el documento
 │
 ├── .gitignore
+├── LICENSE                       # MIT License
 └── README.md                    # Este fichero
 ```
 
