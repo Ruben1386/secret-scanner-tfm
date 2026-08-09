@@ -84,14 +84,36 @@ python src/generate_figures.py --results results/ --out results/figures/
 
 ### Comparativa con GitLeaks y TruffleHog (opcional)
 
-Requiere los binarios de [GitLeaks](https://github.com/gitleaks/gitleaks/releases) y [TruffleHog](https://github.com/trufflesecurity/trufflehog/releases) en `tools/`:
+Reproduce la Tabla 2 del documento técnico (comparativa de las 4 herramientas). Requiere descargar los binarios de [GitLeaks](https://github.com/gitleaks/gitleaks/releases) (v8.30) y [TruffleHog](https://github.com/trufflesecurity/trufflehog/releases) (v3.96) y colocarlos en `tools/gitleaks` y `tools/trufflehog`:
 
 ```bash
+# 1. Escanear el corpus con cada herramienta (modo filesystem, sin historial git)
+tools/gitleaks detect --source=data/corpus --no-git \
+  --report-format=json --report-path=/tmp/gitleaks_out.json --exit-code=0
+
+tools/trufflehog filesystem data/corpus --json > /tmp/trufflehog_out.jsonl
+
+# 2. Calcular Precision/Recall/F1 de las 4 herramientas sobre el mismo ground truth
 python src/evaluate_tools.py \
   --gt  data/corpus/ground_truth.json \
   --gl  /tmp/gitleaks_out.json \
   --th  /tmp/trufflehog_out.jsonl \
   --out results/
+# Resultado: results/comparison_table.json
+```
+
+### Validación en repositorios reales (opcional)
+
+Reproduce la Tabla 3 del documento técnico. Clona los 3 repos públicos usados como referencia y ejecuta el script (rutas fijas, sin argumentos):
+
+```bash
+mkdir -p data/real_repos
+git clone https://github.com/trufflesecurity/test_keys data/real_repos/test_keys
+git clone https://github.com/Yelp/detect-secrets data/real_repos/detect_secrets_repo
+git clone https://github.com/awslabs/git-secrets data/real_repos/awslabs_git_secrets
+
+python src/validate_real_repos.py
+# Resultado: results/real_world_validation.json
 ```
 
 ---
