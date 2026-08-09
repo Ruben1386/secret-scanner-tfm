@@ -34,7 +34,7 @@ El desarrollo de software moderno depende de un ecosistema de servicios externos
 
 Una vez que una credencial llega al historial de un repositorio, incluso si se elimina en un *commit* posterior, permanece accesible para quien tenga acceso a ese historial. Si el repositorio es público —o si es privado pero sufre una filtración—, la credencial queda expuesta de forma efectiva e irreversible sin una rotación explícita.
 
-La magnitud del problema está bien documentada. Basak *et al.* [@basak2023] analizaron más de 818 repositorios públicos e identificaron 97.479 candidatos a secreto, de los cuales 15.084 fueron verificados manualmente como credenciales reales. El mismo estudio estima que uno de cada diez desarrolladores activos filtró al menos una credencial durante el año 2022. Por su parte, GitGuardian [@gitguardian2024] reporta que el número de secretos expuestos en repositorios públicos de GitHub ha crecido un 28 % interanual, con más de 12,8 millones de incidentes detectados en 2023.
+La magnitud del problema está bien documentada. Basak *et al.* [@basak2023] analizaron más de 818 repositorios públicos e identificaron 97.479 candidatos a secreto, de los cuales 15.084 fueron verificados manualmente como credenciales reales. Por su parte, GitGuardian [@gitguardian2024] reporta que uno de cada diez desarrolladores activos filtró al menos una credencial durante 2022, y que el número de secretos expuestos en repositorios públicos de GitHub ha crecido un 28 % interanual, con más de 12,8 millones de incidentes detectados en 2023.
 
 Las consecuencias son directas: acceso no autorizado a infraestructuras en la nube, robo de datos de clientes, compromiso de pipelines de integración continua y, en el peor caso, cadenas de suministro de software comprometidas. El coste medio de una brecha derivada de credenciales comprometidas alcanza los 4,81 millones de dólares según el informe de IBM [@ibm2024].
 
@@ -56,13 +56,13 @@ Las aportaciones concretas de este trabajo, inexistentes antes de su desarrollo,
 
 1. **Un corpus de evaluación propio con 900 instancias etiquetadas** (400 secretos reales de formato válido y 500 falsos positivos difíciles), diseñado específicamente para evitar la separabilidad trivial entre clases y reproducible mediante semilla fija (`seed=42`).
 
-2. **Un detector de Nivel 1 (N1)** que combina 19 patrones de expresiones regulares para formatos de proveedores conocidos con análisis de entropía de Shannon, implementado como librería Python evaluable con métricas Precision/Recall/F1, con soporte de marcadores de supresión *inline* (`# pragma: allowlist`, `# IGNORE`) y exportación de candidatos con vector de características para el clasificador posterior.
+2. **Un detector de Nivel 1 (N1)** que combina 19 patrones de expresiones regulares para formatos de proveedores conocidos (catálogo completo en el Anexo B) con análisis de entropía de Shannon, implementado como librería Python evaluable con métricas Precision/Recall/F1, con soporte de marcadores de supresión *inline* (`# pragma: allowlist`, `# IGNORE`) y exportación de candidatos con vector de características para el clasificador posterior.
 
 3. **Un clasificador de Nivel 2 (N2)** basado en Random Forest que opera sobre 17 características contextuales —composición del token, presencia de prefijos de proveedor, rol del fichero, comentarios circundantes— entrenado sobre los candidatos del N1 con el objetivo específico de reducir falsos positivos manteniendo la cobertura.
 
 4. **Una evaluación comparativa cuantitativa** frente a GitLeaks v8.30 y TruffleHog v3.96 sobre el mismo corpus, con métricas Precision, Recall y F1 calculadas bajo condiciones idénticas y verificadas en repositorios reales públicos.
 
-5. **Un pipeline integrable en entornos DevSecOps**: *pre-commit hook* operativo y esquema de integración CI/CD alineado con las prácticas recomendadas por el NIST Secure Software Development Framework [@nist2022], con guía de reproducción completa en el repositorio de código adjunto.
+5. **Un pipeline integrable en entornos DevSecOps**: *pre-commit hook* operativo y esquema de integración CI/CD alineado con las prácticas recomendadas por el NIST Secure Software Development Framework [@nist2022], con guía de reproducción completa en el repositorio de código adjunto (estructura en el Anexo A, protocolo paso a paso en el Anexo C).
 
 # Definición de la solución
 

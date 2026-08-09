@@ -274,14 +274,13 @@ explícita.</p>
 role="doc-biblioref">Basak et al., 2023</a>)</span> analizaron más de
 818 repositorios públicos e identificaron 97.479 candidatos a secreto,
 de los cuales 15.084 fueron verificados manualmente como credenciales
-reales. El mismo estudio estima que uno de cada diez desarrolladores
-activos filtró al menos una credencial durante el año 2022. Por su
-parte, GitGuardian <span class="citation"
+reales. Por su parte, GitGuardian <span class="citation"
 data-cites="gitguardian2024">(<a href="#ref-gitguardian2024"
-role="doc-biblioref">GitGuardian, 2024</a>)</span> reporta que el número
-de secretos expuestos en repositorios públicos de GitHub ha crecido un
-28 % interanual, con más de 12,8 millones de incidentes detectados en
-2023.</p>
+role="doc-biblioref">GitGuardian, 2024</a>)</span> reporta que uno de
+cada diez desarrolladores activos filtró al menos una credencial durante
+2022, y que el número de secretos expuestos en repositorios públicos de
+GitHub ha crecido un 28 % interanual, con más de 12,8 millones de
+incidentes detectados en 2023.</p>
 <p>Las consecuencias son directas: acceso no autorizado a
 infraestructuras en la nube, robo de datos de clientes, compromiso de
 pipelines de integración continua y, en el peor caso, cadenas de
@@ -351,9 +350,10 @@ separabilidad trivial entre clases y reproducible mediante semilla fija
 (<code>seed=42</code>).</p></li>
 <li><p><strong>Un detector de Nivel 1 (N1)</strong> que combina 19
 patrones de expresiones regulares para formatos de proveedores conocidos
-con análisis de entropía de Shannon, implementado como librería Python
-evaluable con métricas Precision/Recall/F1, con soporte de marcadores de
-supresión <em>inline</em> (<code># pragma: allowlist</code>,
+(catálogo completo en el Anexo B) con análisis de entropía de Shannon,
+implementado como librería Python evaluable con métricas
+Precision/Recall/F1, con soporte de marcadores de supresión
+<em>inline</em> (<code># pragma: allowlist</code>,
 <code># IGNORE</code>) y exportación de candidatos con vector de
 características para el clasificador posterior.</p></li>
 <li><p><strong>Un clasificador de Nivel 2 (N2)</strong> basado en Random
@@ -371,8 +371,9 @@ verificadas en repositorios reales públicos.</p></li>
 alineado con las prácticas recomendadas por el NIST Secure Software
 Development Framework <span class="citation" data-cites="nist2022">(<a
 href="#ref-nist2022" role="doc-biblioref">NIST, 2022</a>)</span>, con
-guía de reproducción completa en el repositorio de código
-adjunto.</p></li>
+guía de reproducción completa en el repositorio de código adjunto
+(estructura en el Anexo A, protocolo paso a paso en el Anexo
+C).</p></li>
 </ol>
 <h1 id="definición-de-la-solución">Definición de la solución</h1>
 <h2 id="fundamentos-teóricos">Fundamentos teóricos</h2>
