@@ -174,7 +174,7 @@ La Tabla 2 resume los resultados de los cuatro sistemas evaluados. GitLeaks, Tru
 
 La Figura 1 muestra esta comparativa de forma visual.
 
-![Comparativa Precision / Recall / F1-score de los cuatro sistemas evaluados. El Nivel 2 (Tier 2 + RF) obtiene el mejor equilibrio global, con una mejora de F1 de +0,25 respecto a GitLeaks, la herramienta de referencia.](../results/figures/fig1_comparison_bar.png){width=52%}
+![Comparativa Precision / Recall / F1-score de los cuatro sistemas evaluados. El Nivel 2 (N2, Random Forest) obtiene el mejor equilibrio global, con una mejora de F1 de +0,25 respecto a GitLeaks, la herramienta de referencia.](../results/figures/fig1_comparison_bar.png){width=52%}
 
 La mejora más significativa del N2 respecto al N1 se aprecia en la reducción de falsos positivos: el N1 genera 300 falsos positivos sobre el corpus completo (900 instancias), mientras que el N2 los reduce a solo 3 sobre el subconjunto de *test* (303 instancias) (Figura 2). El coste es una ligera pérdida de cobertura —12 secretos reales mal clasificados, todos correspondientes a credenciales hardcodeadas en ficheros de *test*, el caso más ambiguo por diseño.
 

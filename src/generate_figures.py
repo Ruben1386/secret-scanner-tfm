@@ -4,8 +4,8 @@ Genera las figuras del TFM (PNG 300 dpi) listas para incluir en el documento.
 
 Figuras producidas:
   fig1_comparison_bar.png   — Barras P/R/F1 de las 4 herramientas
-  fig2_confusion_matrix.png — Matrices de confusión Tier 1 vs Tier 2
-  fig3_feature_importance.png — Top-10 importancias del Tier 2
+  fig2_confusion_matrix.png — Matrices de confusión N1 vs N2
+  fig3_feature_importance.png — Top-10 importancias del N2
 
 Uso:
     python generate_figures.py --results ../results --out ../results/figures
@@ -24,13 +24,13 @@ import numpy as np
 PALETTE = {
     "GitLeaks":  "#e15759",
     "TruffleHog": "#f28e2b",
-    "Tier 1":    "#4e79a7",
-    "Tier 2":    "#59a14f",
+    "N1":    "#4e79a7",
+    "N2":    "#59a14f",
 }
 
 
 def fig_comparison_bar(data, out):
-    tools = ["GitLeaks\nv8.30", "TruffleHog\nv3.96", "Tier 1\n(regex+Shannon)", "Tier 2\n(Tier1+RF)"]
+    tools = ["GitLeaks\nv8.30", "TruffleHog\nv3.96", "N1\n(regex+Shannon)", "N2\n(N1+RF)"]
     p_vals = [data["gitleaks"]["precision"], data["trufflehog"]["precision"],
               data["tier1_full_corpus"]["precision"], data["tier2_testset"]["precision"]]
     r_vals = [data["gitleaks"]["recall"], data["trufflehog"]["recall"],
@@ -60,7 +60,7 @@ def fig_comparison_bar(data, out):
     ax.legend(loc="upper left", fontsize=9)
     ax.yaxis.grid(True, alpha=0.4, zorder=0)
     ax.set_axisbelow(True)
-    # Resaltar columna Tier 2
+    # Resaltar columna N2
     ax.axvspan(3 - 0.45, 3 + 0.45, alpha=0.06, color="#59a14f", zorder=1)
 
     fig.tight_layout()
@@ -71,18 +71,18 @@ def fig_comparison_bar(data, out):
 
 
 def fig_confusion_matrices(tier1_raw, tier2_raw, out):
-    # Tier 1: usamos métricas del corpus completo (tp/fp/fn/tn directos)
+    # N1: usamos métricas del corpus completo (tp/fp/fn/tn directos)
     t1 = tier1_raw
     cm1 = np.array([[t1["tn"], t1["fp"]], [t1["fn"], t1["tp"]]])
 
-    # Tier 2: usamos la matriz del held-out test
+    # N2: usamos la matriz del held-out test
     cm2_list = tier2_raw.get("confusion_matrix_testset", [[0, 0], [0, 0]])
     cm2 = np.array(cm2_list)
 
     fig, axes = plt.subplots(1, 2, figsize=(10, 4))
     for ax, cm, title in zip(axes,
                               [cm1, cm2],
-                              ["Tier 1 — Baseline (corpus completo)", "Tier 2 — RandomForest (test 30%)"]):
+                              ["N1 — Baseline (corpus completo)", "N2 — RandomForest (test 30%)"]):
         im = ax.imshow(cm, cmap="Blues", vmin=0)
         ax.set_xticks([0, 1]); ax.set_yticks([0, 1])
         ax.set_xticklabels(["Pred FP", "Pred Secreto"], fontsize=9)
@@ -97,7 +97,7 @@ def fig_confusion_matrices(tier1_raw, tier2_raw, out):
                         fontsize=14, color=color, fontweight="bold")
         plt.colorbar(im, ax=ax, fraction=0.046, pad=0.04)
 
-    fig.suptitle("Matrices de confusión: Tier 1 vs Tier 2", fontsize=12)
+    fig.suptitle("Matrices de confusión: N1 vs N2", fontsize=12)
     fig.tight_layout()
     path = out / "fig2_confusion_matrix.png"
     fig.savefig(path, dpi=300, bbox_inches="tight")
@@ -141,7 +141,7 @@ def fig_feature_importance(tier2_raw, out):
         ax.text(v + 0.002, bar.get_y() + bar.get_height() / 2,
                 f"{v:.3f}", va="center", fontsize=8)
     ax.set_xlabel("Importancia media (Gini)", fontsize=9)
-    ax.set_title("Top-12 características más informativas — RandomForest Tier 2", fontsize=10)
+    ax.set_title("Top-12 características más informativas — RandomForest N2", fontsize=10)
     ax.set_xlim(0, max(vals) * 1.20)
     ax.xaxis.grid(True, alpha=0.3)
     ax.set_axisbelow(True)
