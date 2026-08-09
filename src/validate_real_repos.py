@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Validación real (Sección 6 del TFM): prueba del pipeline sobre repos públicos reales.
+Validación real (Sección 5.3 "Validación sobre repositorios reales" del TFM): prueba del pipeline sobre repos públicos reales.
 
 Metodología:
   - Modo filesystem: escaneamos el estado ACTUAL del working tree (sin historial git).
