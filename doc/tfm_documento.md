@@ -267,6 +267,7 @@ secret-scanner-tfm/
 │   └── figures/             # Figuras PNG 300 dpi para el documento
 ├── doc/                     # Este documento (pdf/html/md), slides y ficheros de soporte
 ├── .gitignore
+├── LICENSE                  # MIT License
 └── README.md
 ```
 
